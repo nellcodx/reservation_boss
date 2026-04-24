@@ -10,7 +10,7 @@ export type RealtimeHub = {
 export function createRealtime(server: HttpServer): RealtimeHub {
   const io = new SocketIOServer(server, {
     cors: {
-      origin: env.WEB_ORIGIN,
+      origin: env.WEB_ORIGINS,
       credentials: true
     }
   });

@@ -128,6 +128,6 @@ export async function createReservationOptimized(args: {
     });
   });
 
-  return { reservation, reason: null as const };
+  return { reservation, reason: null };
 }
 
