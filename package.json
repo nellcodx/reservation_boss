@@ -1,0 +1,19 @@
+{
+  "name": "restaurant-reservations",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @rr/api & npm run dev -w @rr/web",
+    "dev:api": "npm run dev -w @rr/api",
+    "dev:web": "npm run dev -w @rr/web",
+    "db:migrate": "npm run db:migrate -w @rr/api",
+    "db:seed": "npm run db:seed -w @rr/api"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
