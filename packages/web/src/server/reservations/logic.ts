@@ -1,4 +1,4 @@
-import type { PrismaClient, ReservationStatus, RestaurantTable } from "@/generated/prisma/client";
+import type { PrismaClient, ReservationStatus, RestaurantTable } from "@prisma/client";
 
 export type CreateReservationInput = {
   startAt: Date;
