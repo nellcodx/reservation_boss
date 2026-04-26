@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafaf9;
+  --foreground: #1c1917;
+  --rr-avail: #d1fae5;
+  --rr-avail-fg: #065f46;
+  --rr-partial: #fef3c7;
+  --rr-partial-fg: #92400e;
+  --rr-reserved: #fee2e2;
+  --rr-reserved-fg: #991b1b;
+  --rr-elev: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 3px rgb(0 0 0 / 0.08);
+  --rr-elev-hover: 0 2px 8px rgb(0 0 0 / 0.08), 0 2px 4px rgb(0 0 0 / 0.06);
 }
 
 @theme inline {
@@ -12,15 +20,39 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.rr-card {
+  @apply rounded-2xl border border-stone-200/80 bg-white p-4 shadow-sm transition-shadow;
+  box-shadow: var(--rr-elev);
+}
+.rr-card:hover {
+  box-shadow: var(--rr-elev-hover);
+}
+
+.rr-ind-available {
+  background: var(--rr-avail);
+  color: var(--rr-avail-fg);
+}
+.rr-ind-partial {
+  background: var(--rr-partial);
+  color: var(--rr-partial-fg);
+}
+.rr-ind-reserved {
+  background: var(--rr-reserved);
+  color: var(--rr-reserved-fg);
+}
+
+.rr-tile-free {
+  @apply border border-emerald-300/80 bg-emerald-100 text-emerald-900;
+}
+.rr-tile-reserved {
+  @apply border border-amber-300/80 bg-amber-100 text-amber-900;
+}
+.rr-tile-occupied {
+  @apply border border-red-300/80 bg-red-100 text-red-900;
 }

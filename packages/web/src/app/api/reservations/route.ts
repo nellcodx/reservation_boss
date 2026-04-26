@@ -3,9 +3,15 @@ import { z } from "zod";
 import { addMinutes } from "date-fns";
 import { getPrisma } from "@/server/db";
 import { createReservationOptimized } from "@/server/reservations/logic";
+import { listReservationsInRange } from "@/server/operations";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const Q = z.object({
+  from: z.string().datetime(),
+  to: z.string().datetime()
+});
 
 const Body = z.object({
   startAt: z.string().datetime(),
@@ -16,6 +22,21 @@ const Body = z.object({
   notes: z.string().max(500).optional(),
   preferredTableId: z.string().optional()
 });
+
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const parsed = Q.safeParse(Object.fromEntries(url.searchParams));
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  try {
+    const from = new Date(parsed.data.from);
+    const to = new Date(parsed.data.to);
+    const reservations = await listReservationsInRange({ prisma: getPrisma(), from, to });
+    return NextResponse.json({ reservations });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "UNKNOWN";
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -46,8 +67,11 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: false, reason: result.reason }, { status: 409 });
       }
 
-      // Realtime is replaced by client refetch/polling in Option A.
-      return NextResponse.json({ ok: true, reservation: result.reservation });
+      const withTable = await prisma.reservation.findUnique({
+        where: { id: result.reservation.id },
+        include: { table: true }
+      });
+      return NextResponse.json({ ok: true, reservation: withTable });
     } catch (e) {
       const msg = e instanceof Error ? e.message : "UNKNOWN";
       if (msg === "CONFLICT") return NextResponse.json({ ok: false, reason: "CONFLICT" }, { status: 409 });

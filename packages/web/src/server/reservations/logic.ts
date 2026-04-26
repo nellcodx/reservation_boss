@@ -120,6 +120,7 @@ export async function createReservationOptimized(args: {
         startAt: input.startAt,
         endAt: input.endAt,
         partySize: input.partySize,
+        status: "CONFIRMED",
         guestName: input.guestName,
         guestPhone: input.guestPhone,
         notes: input.notes,

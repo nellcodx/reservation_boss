@@ -1,30 +1,40 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
-    <div className="min-h-dvh bg-zinc-50 font-sans text-zinc-900">
-      <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-10">
-        <header className="flex flex-col gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight">Reservation system (Vercel-only)</h1>
-          <p className="text-sm text-zinc-600">
-            Backend runs as Next.js API routes. Realtime is replaced by client refetch/polling.
-          </p>
-        </header>
-
-        <section className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-zinc-200">
-          <h2 className="text-sm font-medium text-zinc-900">Quick checks</h2>
-          <div className="mt-3 grid gap-2 text-sm">
-            <a className="underline" href="/api/health">
-              /api/health
-            </a>
-            <a className="underline" href="/api/tables">
-              /api/tables
-            </a>
-          </div>
-          <p className="mt-4 text-xs text-zinc-500">
-            To fully enable these endpoints, set <code className="rounded bg-zinc-100 px-1">DATABASE_URL</code>{" "}
-            in Vercel and run Prisma migrations against your hosted Postgres.
-          </p>
-        </section>
-      </main>
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-4 py-10">
+      <header className="space-y-2">
+        <p className="text-xs font-medium uppercase tracking-widest text-amber-700/90">Tavolo</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-stone-900 sm:text-4xl">Reservations, live.</h1>
+        <p className="max-w-xl text-sm leading-relaxed text-stone-600">
+          Book time slots, see table availability, and run service from a focused staff view. The stack is Next.js, PostgreSQL,
+          and optional Express + Socket.io for push updates, with mock SMS in development.
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Link
+            href="/book"
+            className="inline-flex items-center justify-center rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-stone-800"
+          >
+            Book a table
+          </Link>
+          <Link
+            href="/admin"
+            className="inline-flex items-center justify-center rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-800 transition hover:border-stone-300"
+          >
+            Staff
+          </Link>
+        </div>
+      </header>
+      <section className="grid gap-3 sm:grid-cols-2">
+        <div className="rr-card min-h-24 p-4">
+          <h2 className="text-sm font-medium text-stone-900">Guest flow</h2>
+          <p className="mt-1 text-xs text-stone-500">Day or week view, 15-minute slots, capacity-aware tables, and confirmation with SMS (mocked locally).</p>
+        </div>
+        <div className="rr-card min-h-24 p-4">
+          <h2 className="text-sm font-medium text-stone-900">Operations</h2>
+          <p className="mt-1 text-xs text-stone-500">Modify bookings, mark no-shows, walk-ins, waitlist, and a simple 7-day analytics slice.</p>
+        </div>
+      </section>
     </div>
   );
 }
