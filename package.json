@@ -6,12 +6,12 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev -w @rr/api & npm run dev -w @rr/web",
+    "dev": "npm run dev -w @rr/web",
     "dev:api": "npm run dev -w @rr/api",
     "dev:web": "npm run dev -w @rr/web",
-    "db:migrate": "npm run db:migrate -w @rr/api",
-    "db:migrate:deploy": "npm run db:migrate:deploy -w @rr/api",
-    "db:push": "npm run db:push -w @rr/api",
+    "db:migrate": "npm run db:migrate -w @rr/web",
+    "db:migrate:deploy": "npm run db:migrate:deploy -w @rr/web",
+    "db:push": "npm run db:push -w @rr/web",
     "db:seed": "npm run db:seed -w @rr/api"
   },
   "keywords": [],
