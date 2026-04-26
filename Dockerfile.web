@@ -1,0 +1,22 @@
+# Next.js (packages/web) — for GHCR, VPS, or any container host
+#   docker build -f Dockerfile.web -t rr-web .
+#   docker run -p 3000:3000 -e DATABASE_URL=... -e PORT=3000 ...
+FROM node:20-bookworm-slim AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY packages ./packages
+RUN npm install
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npx prisma generate --schema=packages/web/prisma/schema.prisma
+RUN npm run build -w @rr/web
+
+FROM node:20-bookworm-slim AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY --from=build /app/package.json /app/package-lock.json ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/packages/web ./packages/web
+EXPOSE 3000
+# Apply migrations then start Next (needs DATABASE_URL at run time)
+CMD ["/bin/sh", "-c", "npx prisma migrate deploy --schema=packages/web/prisma/schema.prisma && cd /app/packages/web && exec npx next start -H 0.0.0.0 -p ${PORT:-3000}"]

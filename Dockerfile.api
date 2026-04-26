@@ -1,5 +1,6 @@
-# Realtime API (Express + Socket.io) — e.g. Railway, Render, Google Cloud Run
-# docker build -t rr-api . && docker run -p 4000:4000 -e DATABASE_URL=... -e WEB_ORIGINS=https://yourapp.vercel.app rr-api
+# Express + Socket.io API
+#   docker build -f Dockerfile.api -t rr-api .
+#   docker run -p 4000:4000 -e DATABASE_URL=... -e WEB_ORIGINS=https://your-frontend.example.com ...
 FROM node:20-bookworm-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
