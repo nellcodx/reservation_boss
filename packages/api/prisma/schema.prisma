@@ -1,5 +1,7 @@
 generator client {
   provider = "prisma-client-js"
+  // Isolate generated client from other workspaces in this monorepo.
+  output   = "../src/generated/prisma"
 }
 
 datasource db {

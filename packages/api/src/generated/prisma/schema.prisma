@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+  // Isolate generated client from other workspaces in this monorepo.
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  NO_SHOW
+}
+
+enum TableStatus {
+  FREE
+  OCCUPIED
+}
+
+model RestaurantTable {
+  id        String      @id @default(cuid())
+  name      String
+  capacity  Int
+  x         Int         @default(0) // floorplan coordinate (grid units)
+  y         Int         @default(0)
+  status    TableStatus @default(FREE)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  reservations Reservation[]
+
+  @@index([capacity])
+}
+
+model Reservation {
+  id         String            @id @default(cuid())
+  startAt    DateTime
+  endAt      DateTime
+  partySize  Int
+  status     ReservationStatus @default(PENDING)
+  guestName  String
+  guestPhone String
+  notes      String?
+  source     String            @default("online") // online, admin, walkin
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  tableId String
+  table   RestaurantTable @relation(fields: [tableId], references: [id], onDelete: Restrict)
+
+  smsConfirmationSentAt DateTime?
+  smsReminderSentAt     DateTime?
+
+  @@index([startAt])
+  @@index([endAt])
+  @@index([status])
+  @@index([tableId, startAt, endAt])
+}
+
+model WaitlistEntry {
+  id         String   @id @default(cuid())
+  desiredAt  DateTime
+  partySize  Int
+  guestName  String
+  guestPhone String
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  @@index([desiredAt])
+}
