@@ -157,6 +157,36 @@
         </div>
       </div>
 
+      <div class="card" style="border-color: #b45309; background: #fffbeb">
+        <p style="font-weight: 600; margin: 0 0 6px; color: #44403c">If you see 404, turn Pages on and pick one method</p>
+        <p class="small" style="color: #44403c">
+          <strong>A) GitHub Actions (matches this repo’s workflow):</strong><br />
+          Repository
+          <a href="https://github.com/nellcodx/reservation/settings/pages" target="_blank" rel="noopener" style="color: #b45309"
+            ><strong>Settings</strong> → <strong>Pages</strong></a
+          >
+          → <strong>Build and deployment</strong> → <strong>Source: GitHub Actions</strong> → select workflow
+          <em>“Publish GitHub Pages preview”</em> (if you see a dropdown) → wait until the latest run in
+          <a href="https://github.com/nellcodx/reservation/actions" target="_blank" rel="noopener">Actions</a> is
+          <strong>green</strong> (1–2 min), then try the URL again.
+        </p>
+        <p class="small" style="color: #44403c; margin-top: 10px">
+          <strong>B) No Actions (simpler):</strong> same
+          <a href="https://github.com/nellcodx/reservation/settings/pages" target="_blank" rel="noopener" style="color: #b45309"
+            >Settings → Pages</a
+          >
+          → <strong>Source: Deploy from a branch</strong> → <strong>Branch: main</strong> →
+          <strong>Folder: /docs</strong> → Save. Do <strong>not</strong> use (A) and (B) at the same time.
+        </p>
+        <p class="small" style="color: #57534e; margin-top: 10px; margin-bottom: 0">
+          <strong>Correct project URL</strong> (this repo is named
+          <code>reservation</code>):<br />
+          <code>https://nellcodx.github.io/reservation/</code> — not <code>github.io</code> alone, and the path must match
+          the repo name. Private repos need a paid/team plan to use Pages on the free org rules; public repos get Pages
+          for free.
+        </p>
+      </div>
+
       <div>
         <a
           class="btn"
@@ -166,18 +196,12 @@
         >
           Open repository
         </a>
-        <p class="small">
-          <strong>Enable the preview once:</strong> <strong>Settings</strong> → <strong>Pages</strong> →
-          <strong>Build and deployment</strong> → Source: <strong>GitHub Actions</strong>. Pushes to
-          <code>main</code> run the workflow
-          <code>Publish GitHub Pages preview</code> and update this site. The URL is usually
-          <code>https://nellcodx.github.io/reservation/</code> (user/org + repo name). Alternatively, use
-          <strong>Deploy from a branch</strong> and folder <code>/docs</code> (no Action needed).
-        </p>
-        <p class="small" style="margin-top: 12px">
+        <p class="small" style="margin-top: 8px">
+          Pushes to <code>main</code> also run
           <a class="ghost" href="https://github.com/nellcodx/reservation/actions" target="_blank" rel="noopener"
-            >View GitHub Actions</a
+            >Publish GitHub Pages preview</a
           >
+          when the workflow source is GitHub Actions.
         </p>
       </div>
     </div>
