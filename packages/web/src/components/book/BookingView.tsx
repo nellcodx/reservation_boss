@@ -48,6 +48,11 @@ export function BookingView() {
   const [done, setDone] = useState<{ id: string; table?: string; when: string } | null>(null);
   const [waitlist, setWaitlist] = useState({ name: "", phone: "", want: "join" as "off" | "join" });
 
+  const selectableIds = useMemo(() => {
+    if (loadingTables || tables === null) return new Set<string>();
+    return new Set(tables.map((t) => t.id));
+  }, [tables, loadingTables]);
+
   const refreshCalendar = useCallback(async () => {
     setLoadCal(true);
     setErr(null);
@@ -93,6 +98,8 @@ export function BookingView() {
       setFloor(null);
       return;
     }
+    setTables(null);
+    setFloor(null);
     setLoadingTables(true);
     try {
       const q = new URLSearchParams({
@@ -104,6 +111,7 @@ export function BookingView() {
       setTables(t.tables);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Failed to load tables");
+      setTables([]);
     } finally {
       setLoadingTables(false);
     }
@@ -191,13 +199,29 @@ export function BookingView() {
     return calendar.slots.filter((s) => inServiceHours(s.startAt));
   }, [calendar]);
 
+  const mapInteractive =
+    Boolean(slot && tables !== null && tables.length > 0 && slot.indicator !== "reserved" && !loadingTables);
+
+  const onMapPick = useCallback(
+    (id: string) => {
+      if (!selectableIds?.has(id)) return;
+      setSelectedTable(id);
+    },
+    [selectableIds]
+  );
+
+  const bookingSummary =
+    slot && view === "day"
+      ? `${format(day, "EEEE, MMM d")} · ${format(new Date(slot.startAt), "p")} · ${party} guests`
+      : null;
+
   return (
     <div className="space-y-8">
       {done && (
         <div className="rr-card max-w-md border border-emerald-200/60 bg-emerald-50/80">
           <h2 className="text-lg font-semibold text-emerald-900">You&apos;re booked</h2>
           <p className="mt-1 text-sm text-emerald-800/90">Confirmation for {done.when}</p>
-          {done.table && <p className="mt-2 text-sm">Preferred table: {done.table}</p>}
+          {done.table && <p className="mt-2 text-sm">Table: {done.table}</p>}
           <p className="mt-3 text-xs text-emerald-800/70">A confirmation SMS is on its way (use mock Twilio in dev to see logs).</p>
         </div>
       )}
@@ -206,8 +230,10 @@ export function BookingView() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Reserve a table</h1>
           <p className="text-sm text-stone-500">
-            Pick a date, party size, and a time — like any guest would. The room map on the right is{" "}
-            <strong className="font-medium text-stone-600">optional</strong> context; you can book without looking at it.
+            Choose a <strong className="font-medium text-stone-700">date</strong>,{" "}
+            <strong className="font-medium text-stone-700">time</strong>, and{" "}
+            <strong className="font-medium text-stone-700">party size</strong>. Then pick a table on the map or from the list —
+            both stay in sync.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -260,6 +286,7 @@ export function BookingView() {
             </label>
             {loadCal && <span className="text-xs text-stone-500">Loading…</span>}
           </div>
+          <p className="mb-2 text-xs text-stone-500">Pick a time slot below — then choose your table on the map.</p>
           <div className="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-4 md:grid-cols-6">
             {daySlots.map((s) => {
               const active = slot?.startAt === s.startAt;
@@ -299,7 +326,7 @@ export function BookingView() {
         <div className="rr-card max-w-full overflow-x-auto">
           <h3 className="mb-2 text-sm font-medium">Week of {format(new Date(week.weekStart), "MMM d")}</h3>
           <div className="grid min-w-[800px] grid-cols-7 gap-1">
-                {week.days.map((d, i) => (
+            {week.days.map((d, i) => (
               <div key={d.dayStart} className="min-w-0 text-xs">
                 <div className="mb-1 text-center font-medium text-stone-500">
                   {format(addDays(new Date(week.weekStart), i), "EEE d")}
@@ -331,18 +358,41 @@ export function BookingView() {
               </div>
             ))}
           </div>
-          <p className="mt-2 text-xs text-stone-500">Tap a slot to switch to day view and pre-select the time.</p>
+          <p className="mt-2 text-xs text-stone-500">Tap a slot to switch to day view and pick your time.</p>
         </div>
       )}
 
       {slot && !done && view === "day" && (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+          <section className="space-y-3">
+            <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-sm text-stone-800 shadow-sm">
+              <p className="font-semibold text-stone-900">Your booking window</p>
+              <p className="mt-0.5 text-stone-700">{bookingSummary}</p>
+            </div>
+            <div className="rr-card space-y-3">
+              <div>
+                <h2 className="text-base font-semibold tracking-tight text-stone-900">Choose your table</h2>
+                <p className="mt-1 text-xs leading-relaxed text-stone-600">
+                  Tap a highlighted table — it matches your date, time, and party size. Dim tables are busy or don&apos;t fit this
+                  slot. Your selection updates the list on the right.
+                </p>
+              </div>
+              <TableMap
+                floor={floor}
+                loading={floorLoad || loadingTables}
+                onSelectTable={mapInteractive ? onMapPick : undefined}
+                selectedId={selectedTable ?? undefined}
+                selectableIds={selectableIds}
+              />
+            </div>
+          </section>
+
           <div className="rr-card">
-            <h2 className="text-sm font-medium">Your table at {format(new Date(slot.startAt), "p")}</h2>
+            <h2 className="text-sm font-medium text-stone-900">Table list &amp; details</h2>
             {loadingTables ? (
               <p className="mt-2 text-sm text-stone-500">Loading availability…</p>
             ) : !tables || tables.length === 0 ? (
-              <p className="mt-2 text-sm text-amber-800/90">No tables for this time. Use waitlist below.</p>
+              <p className="mt-2 text-sm text-amber-800/90">No tables for this time. Try another slot or use the waitlist.</p>
             ) : (
               <ul className="mt-2 space-y-1 text-sm">
                 {tables.map((t) => (
@@ -360,7 +410,9 @@ export function BookingView() {
                     </label>
                   </li>
                 ))}
-                <li className="pt-1 text-xs text-stone-500">Or leave unselected and we’ll pick a good table for your group.</li>
+                <li className="pt-1 text-xs text-stone-500">
+                  Or leave unselected — we&apos;ll assign the best table for your group.
+                </li>
               </ul>
             )}
             <form onSubmit={submit} className="mt-4 space-y-3">
@@ -392,7 +444,7 @@ export function BookingView() {
               </div>
               {err && <p className="text-sm text-red-600">{err}</p>}
               <div className="space-y-2 border-t border-stone-100 pt-3 text-xs text-stone-500">
-                <p>Fully booked? </p>
+                <p>Fully booked?</p>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                   <input
                     placeholder="Waitlist name"
@@ -418,23 +470,13 @@ export function BookingView() {
               </div>
               <button
                 type="submit"
-                disabled={submitting || (slot?.indicator === "reserved")}
+                disabled={submitting || slot?.indicator === "reserved"}
                 className="w-full rounded-xl bg-stone-900 py-2.5 text-sm font-medium text-white transition enabled:hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {submitting ? "Confirming…" : "Confirm reservation"}
               </button>
             </form>
           </div>
-          <details className="rr-card rr-guest-details group self-start open:ring-1 open:ring-amber-200/80">
-            <summary className="cursor-pointer pr-1 text-sm font-medium text-stone-800">
-              <span className="text-amber-800/90">Optional:</span> room layout (for curious guests)
-            </summary>
-            <p className="mb-3 mt-1 text-xs text-stone-500">
-              This is a simplified “where tables sit” view. Staff use it in the back office; you don’t need it to
-              complete a booking.
-            </p>
-            <TableMap floor={floor} loading={floorLoad} />
-          </details>
         </div>
       )}
     </div>

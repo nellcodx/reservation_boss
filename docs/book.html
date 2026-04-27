@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Забронювати стіл — Tavolo</title>
+    <title>Book a table — Tavolo</title>
     <meta name="theme-color" content="#fff7ed" />
     <meta
       name="description"
-      content="Оберіть дату, час і кількість гостей. Статична демо-форма без сервера."
+      content="Pick a date, time, and party size. Static demo — no backend."
     />
     <style>
       :root {
@@ -164,20 +164,20 @@
   </head>
   <body>
     <div class="page">
-      <a class="back" href="index.html">← На головну</a>
-      <span class="eyebrow">Tavolo · гість</span>
-      <h1>Забронювати стіл</h1>
-      <p class="lede">Це демо-форма: дані не відправляються в інтернет. У повноцінному додатку тут з’явиться перевірка вільних місць.</p>
+      <a class="back" href="index.html">← Back home</a>
+      <span class="eyebrow">Tavolo · guest</span>
+      <h1>Book a table</h1>
+      <p class="lede">Demo only — nothing is sent online. The full app checks live availability and lets guests tap a table on the map.</p>
 
       <div id="form-block" class="card">
         <form id="book-form" novalidate>
           <div class="row">
             <div class="field">
-              <label for="name">Ім’я</label>
+              <label for="name">Name</label>
               <input id="name" name="name" type="text" autocomplete="name" required />
             </div>
             <div class="field">
-              <label for="party">Гостей</label>
+              <label for="party">Guests</label>
               <select id="party" name="party" required>
                 <option value="1">1</option>
                 <option value="2" selected>2</option>
@@ -191,32 +191,32 @@
           </div>
           <div class="row">
             <div class="field">
-              <label for="date">Дата</label>
+              <label for="date">Date</label>
               <input id="date" name="date" type="date" required />
             </div>
             <div class="field">
-              <label for="time">Час</label>
+              <label for="time">Time</label>
               <input id="time" name="time" type="time" value="19:00" required />
             </div>
           </div>
           <div class="field">
-            <label for="email">Email (для підтвердження)</label>
+            <label for="email">Email (confirmation)</label>
             <input id="email" name="email" type="email" autocomplete="email" inputmode="email" />
           </div>
           <div class="field">
-            <label for="notes">Побажання (необов’язково)</label>
-            <textarea id="notes" name="notes" placeholder="Алергії, дитяче крісло…"></textarea>
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" name="notes" placeholder="Allergies, high chair…"></textarea>
           </div>
-          <button type="submit" class="btn">Підтвердити бажаний візит</button>
-          <p class="disclaimer">Статична сторінка; підключіть бекенд, щоб броні зберігалися та йшов SMS / лист.</p>
+          <button type="submit" class="btn">Submit request</button>
+          <p class="disclaimer">Static preview — connect the backend for saved bookings and SMS.</p>
         </form>
       </div>
 
       <div id="success-block" class="card success hidden" role="status" aria-live="polite">
-        <h2>Ми «отримали» заявку</h2>
-        <p id="success-line">У реальному ресторані ви б отримали SMS або email з деталями.</p>
+        <h2>Thanks — request captured</h2>
+        <p id="success-line">In production you’d receive SMS or email with your reservation.</p>
         <p style="margin-top: 1rem">
-          <a class="back" style="display: inline; margin: 0; border: 0; font-size: 0.95rem" href="index.html">На головну</a>
+          <a class="back" style="display: inline; margin: 0; border: 0; font-size: 0.95rem" href="index.html">Home</a>
         </p>
       </div>
     </div>

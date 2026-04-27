@@ -7,8 +7,8 @@ export default function Home() {
         <p className="text-xs font-medium uppercase tracking-widest text-amber-700/90">Tavolo</p>
         <h1 className="text-3xl font-semibold tracking-tight text-stone-900 sm:text-4xl">Book a table in a few steps.</h1>
         <p className="max-w-xl text-sm leading-relaxed text-stone-600">
-          This path is for <strong>guests</strong>: date, party size, time, then your details. The small room map in the book flow
-          is optional and tucked away — you don’t need a floor plan to finish a reservation.
+          Built for <strong>guests</strong>: choose date, time, party size — then tap a table on the live floor map or pick from the list.
+          Tables that match your booking window are highlighted; dim tiles aren&apos;t offered for your slot.
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           <Link

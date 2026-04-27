@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Tavolo — Забронювати стіл</title>
+    <title>Tavolo — Book a table</title>
     <meta name="theme-color" content="#fff7ed" />
     <meta
       name="description"
-      content="Швидке бронювання столу: дата, компанія, час. Без зайвих схем на головному екрані — лише зрозумілі кроки."
+      content="Reserve a table in minutes: choose a date, party size, and time. A clear guest path first — no staff floor diagram on the first screen."
     />
     <style>
       :root {
@@ -244,57 +244,59 @@
     <div class="wrap">
       <header class="hero">
         <p class="eyebrow">Tavolo</p>
-        <h1>Бронювання за хвилину</h1>
-        <p class="sub">Оберіть дату, кількість гостей і зручний час — без технічних планів на першому кроці. Схема залу нижче лише довідник (як працює зал на кухні).</p>
-        <a class="btn" href="book.html">Забронювати стіл</a>
+        <h1>Book your table in no time</h1>
+        <p class="sub">
+          Pick a date, how many guests, and a visit time — without technical diagrams as your first step. The expandable note below is only an illustration of how restaurants colour-code busy seats (staff-style view).
+        </p>
+        <a class="btn" href="book.html">Book a table</a>
         <br />
-        <a class="btn-secondary" href="https://github.com/nellcodx/reservation" target="_blank" rel="noopener">Проєкт на GitHub</a>
+        <a class="btn-secondary" href="https://github.com/nellcodx/reservation" target="_blank" rel="noopener">Source on GitHub</a>
       </header>
 
-      <div class="steps" aria-label="Кроки бронювання">
+      <div class="steps" aria-label="Booking steps">
         <div class="step">
           <div class="step-ico" aria-hidden="true">📅</div>
-          <h2>Дата й час</h2>
-          <p>Підберіть вечір або обід, коли вам зручно зайти.</p>
+          <h2>When</h2>
+          <p>Choose lunch or dinner — whatever suits your plans.</p>
         </div>
         <div class="step">
-          <div class="step-ico" aria-hidden="true">🪑</div>
-          <h2>Компанія</h2>
-          <p>Скільки людей — так підберуть розмір столу.</p>
+          <div class="step-ico" aria-hidden="true">👥</div>
+          <h2>Party size</h2>
+          <p>We’ll suggest tables that fit everyone comfortably.</p>
         </div>
         <div class="step">
           <div class="step-ico" aria-hidden="true">✓</div>
-          <h2>Підтвердження</h2>
-          <p>Отримаєте деталі броні — наприклад, SMS (у повній версії).</p>
+          <h2>Confirmation</h2>
+          <p>In the full product you’d get SMS or email details.</p>
         </div>
       </div>
 
       <details class="hint">
-        <summary>Для допитливих: як виглядає «карта залу» у ресторану (необов’язково)</summary>
-        <p class="floor-note">Це стилізована підказка для персоналу, не крок для гостя. Кольори: вільно / зарезервовано / зайнято.</p>
-        <div class="floor" aria-label="Схематичний план, ілюстрація">
-          <div class="table table--avail" title="Вільний стол">1</div>
-          <div class="table table--res" title="Бронь">2</div>
-          <div class="table table--avail" title="Вільно">3</div>
-          <div class="table table--res" title="Скоро гості">4</div>
-          <div class="table table--avail" title="Вільно">5</div>
-          <div class="table table--occ" title="Гості за столом">6</div>
+        <summary>Optional: what a floor map usually looks like (staff)</summary>
+        <p class="floor-note">Decorative example — not required for guests to reserve. Colours: open · booked ahead · seated.</p>
+        <div class="floor" aria-label="Illustrative mini layout">
+          <div class="table table--avail" title="Free">1</div>
+          <div class="table table--res" title="Reserved">2</div>
+          <div class="table table--avail" title="Free">3</div>
+          <div class="table table--res" title="Soon">4</div>
+          <div class="table table--avail" title="Free">5</div>
+          <div class="table table--occ" title="Seated">6</div>
         </div>
         <div class="legend">
-          <span>● Вільні місця</span>
-          <span>● Майбутня бронь</span>
-          <span>● Вже в залі</span>
+          <span>Open</span>
+          <span>Held</span>
+          <span>In service</span>
         </div>
       </details>
 
       <p style="text-align: center; font-size: 0.9rem; color: var(--muted)">
-        Статична демо-версія на GitHub Pages. <a class="link" href="book.html">Форма броні</a> — без відправки на сервер. Повна швидка перевірка місць — у
-        розгорнутому застосунку Next.js.
+        Static demo on GitHub Pages — <a class="link" href="book.html">booking form</a> does not send data to a server. Live slots and table picking ship with the hosted Next.js app.
       </p>
 
       <footer class="footer">
-        <a class="link" href="https://nellcodx.github.io/reservation/book.html">tavolo / бронь</a>
-        — GitHub Pages. Код: <a class="link" href="https://github.com/nellcodx/reservation">nellcodx/reservation</a>.
+        <a class="link" href="https://nellcodx.github.io/reservation/book.html">Guest preview</a>
+        on GitHub Pages · Code:
+        <a class="link" href="https://github.com/nellcodx/reservation">nellcodx/reservation</a>
       </footer>
     </div>
   </body>
