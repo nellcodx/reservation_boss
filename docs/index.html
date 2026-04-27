@@ -67,24 +67,26 @@
         max-width: 32rem;
         margin: 0 auto 1.5rem;
       }
+      /* Lovable / HoReCa primary — same red tone as Next `hsl(1 76% 55%)` */
       .btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         padding: 14px 28px;
-        border-radius: 9999px;
+        border-radius: 0.75rem;
         font-size: 0.95rem;
-        font-weight: 600;
+        font-weight: 700;
         text-decoration: none;
         color: #fff;
-        background: linear-gradient(180deg, #1c1917, #0c0a09);
-        box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+        background: hsl(1, 76%, 55%);
+        box-shadow: 0 4px 12px rgb(225 29 72 / 0.28);
         border: none;
         cursor: pointer;
-        transition: transform 0.12s, box-shadow 0.2s;
+        transition: transform 0.12s, box-shadow 0.2s, opacity 0.15s;
       }
       .btn:hover {
-        box-shadow: 0 6px 16px rgb(0 0 0 / 0.2);
+        opacity: 0.92;
+        box-shadow: 0 6px 16px rgb(225 29 72 / 0.35);
       }
       .btn:active {
         transform: scale(0.99);
@@ -268,10 +270,38 @@
         <p class="sub">
           Pick a date, how many guests, and a visit time — without technical diagrams as your first step. The expandable note below is only an illustration of how restaurants colour-code busy tables.
         </p>
-        <a class="btn" href="book.html">Book a table</a>
+        <a class="btn" href="book.html">Book a table (static form)</a>
         <br />
-        <a class="btn-secondary" href="https://github.com/nellcodx/reservation" target="_blank" rel="noopener">Source on GitHub</a>
+        <a class="btn-secondary" href="https://github.com/nellcodx/reservation_boss" target="_blank" rel="noopener">reservation_boss on GitHub</a>
       </header>
+
+      <div
+        style="
+          margin: 1.25rem auto 0;
+          max-width: 36rem;
+          padding: 1rem 1.1rem;
+          border-radius: 0.75rem;
+          border: 1px solid #e7e5e4;
+          background: #fff;
+          text-align: left;
+          font-size: 0.9rem;
+          line-height: 1.5;
+          color: #44403c;
+          box-shadow: 0 1px 3px rgb(0 0 0 / 0.05);
+        "
+      >
+        <p style="margin: 0 0 0.5rem; font-weight: 600; color: #0c0a09">Чому «немає змін» на цій сторінці?</p>
+        <p style="margin: 0">
+          Повний дизайн Lovable (вузька колонка, нижнє меню, кнопка <strong>Reserve</strong>) — це
+          <strong>Next.js</strong> у репозиторії
+          <a class="link" href="https://github.com/nellcodx/reservation_boss" target="_blank" rel="noopener">reservation_boss</a>, маршрут
+          <code style="font-size: 0.85em; background: #f5f5f4; padding: 0.1em 0.35em; border-radius: 4px">/reservation</code>. Тут на
+          GitHub Pages — лише <em>статичний</em> HTML, не той самий застосунок. Підключи Vercel/Netlify до репо, після деплою відкрий
+          <code style="font-size: 0.85em; background: #f5f5f4; padding: 0.1em 0.35em; border-radius: 4px">твій-домен/reservation</code>. Локально:
+          <code style="font-size: 0.85em; background: #f5f5f4; padding: 0.1em 0.35em; border-radius: 4px">npm run dev -w @rr/web</code> →
+          <code style="font-size: 0.85em; background: #f5f5f4; padding: 0.1em 0.35em; border-radius: 4px">localhost:3000/reservation</code>.
+        </p>
+      </div>
 
       <div class="steps" aria-label="Booking steps">
         <div class="step">
@@ -326,9 +356,10 @@
       </p>
 
       <footer class="footer">
-        <a class="link" href="https://nellcodx.github.io/reservation/book.html">Guest preview</a>
-        on GitHub Pages · Code:
-        <a class="link" href="https://github.com/nellcodx/reservation">nellcodx/reservation</a>
+        <a class="link" href="https://nellcodx.github.io/reservation/book.html">Static form (Pages)</a>
+        · Next app:
+        <a class="link" href="https://github.com/nellcodx/reservation_boss">nellcodx/reservation_boss</a>
+        (деплой → <code>/reservation</code>)
       </footer>
     </div>
   </body>
