@@ -3,25 +3,31 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Tavolo — Restaurant reservations</title>
+    <title>Tavolo — Know your room before the rush</title>
     <meta name="theme-color" content="#fafaf9" />
     <meta
       name="description"
-      content="Preview of the Tavolo reservation product skin: status colors and a link to the open-source app on GitHub."
+      content="Tavolo helps guests book and staff see the floor at a glance. Preview the dining room map and how table status is shown in color."
     />
     <style>
       :root {
         --bg: #fafaf9;
         --text: #1c1917;
-        --green: #d1fae5;
-        --green-t: #065f46;
-        --amber: #fef3c7;
-        --amber-t: #92400e;
-        --red: #fee2e2;
-        --red-t: #991b1b;
-        --card: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 3px rgb(0 0 0 / 0.08);
+        --muted: #57534e;
+        --faint: #a8a29e;
+        --card: 0 1px 2px rgb(0 0 0 / 0.05), 0 2px 8px rgb(0 0 0 / 0.06);
         --r: 16px;
-        --space: 8px;
+        --s: 8px;
+        /* Status fills */
+        --avail: #d1fae5;
+        --avail-b: #6ee7b7;
+        --avail-t: #064e3b;
+        --res: #fef3c7;
+        --res-b: #fcd34d;
+        --res-t: #78350f;
+        --occ: #fee2e2;
+        --occ-b: #fca5a5;
+        --occ-t: #7f1d1d;
       }
       * {
         box-sizing: border-box;
@@ -29,102 +35,195 @@
       body {
         margin: 0;
         min-height: 100dvh;
-        background: var(--bg);
+        background: linear-gradient(180deg, #fafaf9 0%, #f5f5f4 100%);
         color: var(--text);
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", sans-serif;
-        line-height: 1.5;
-        padding: calc(var(--space) * 2);
+        font-family: "Georgia", "Times New Roman", ui-serif, Georgia, serif;
+        line-height: 1.55;
+        font-size: 1.02rem;
       }
-      .wrap {
-        max-width: 42rem;
+      .sans {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      }
+      .page {
+        max-width: 44rem;
         margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        gap: calc(var(--space) * 2);
-        padding: calc(var(--space) * 2) 0;
+        padding: calc(var(--s) * 2.5) calc(var(--s) * 2) calc(var(--s) * 3);
+      }
+      .eyebrow {
+        display: block;
+        font-size: 0.72rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #b45309;
+        font-family: system-ui, sans-serif;
+        font-weight: 600;
+        margin-bottom: var(--s);
       }
       h1 {
-        font-size: clamp(1.5rem, 4vw, 1.75rem);
-        font-weight: 600;
-        letter-spacing: -0.02em;
-        margin: 0;
+        font-size: clamp(1.75rem, 4.2vw, 2.1rem);
+        font-weight: 500;
+        letter-spacing: -0.03em;
+        line-height: 1.2;
+        margin: 0 0 var(--s);
+        color: #0c0a09;
       }
-      p {
-        margin: 0;
-        color: #57534e;
+      .lede {
+        color: var(--muted);
+        font-size: 1.05rem;
+        margin: 0 0 calc(var(--s) * 2);
+        max-width: 36rem;
+      }
+      .bullets {
+        margin: 0 0 calc(var(--s) * 2.5);
+        padding: 0;
+        list-style: none;
         font-size: 0.95rem;
+        color: var(--muted);
       }
-      footer {
-        margin-top: auto;
-        padding-top: calc(var(--space) * 2);
-        font-size: 0.75rem;
-        color: #a8a29e;
+      .bullets li {
+        position: relative;
+        padding-left: 1.35rem;
+        margin-bottom: 0.6rem;
       }
-      .badge {
-        display: inline-block;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: #b45309;
+      .bullets li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.5em;
+        width: 6px;
+        height: 6px;
+        background: #d6d3d1;
+        border-radius: 50%;
+      }
+      h2 {
+        font-size: 0.85rem;
         font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #78716c;
+        font-family: system-ui, sans-serif;
+        margin: 0 0 var(--s);
       }
-      .card {
+      .floor-wrap {
         background: #fff;
         border: 1px solid #e7e5e4;
-        border-radius: var(--r);
-        padding: calc(var(--space) * 2);
+        border-radius: 20px;
+        padding: calc(var(--s) * 1.5);
         box-shadow: var(--card);
-        transition: box-shadow 0.2s ease;
+        margin-bottom: calc(var(--s) * 2);
       }
-      .card:hover {
-        box-shadow: 0 2px 8px rgb(0 0 0 / 0.08), 0 2px 4px rgb(0 0 0 / 0.06);
+      .floor-label {
+        text-align: center;
+        font-size: 0.8rem;
+        color: #a8a29e;
+        font-family: system-ui, sans-serif;
+        margin: 0 0 calc(var(--s) * 1.5);
+        font-style: italic;
+      }
+      .floor {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: var(--s);
+        min-height: 9rem;
+        max-width: 100%;
+        aspect-ratio: 3 / 2.1;
+        align-items: stretch;
+      }
+      @media (max-width: 24rem) {
+        .table {
+          padding: 6px 4px;
+          min-height: 3rem;
+        }
+        .table span.name {
+          font-size: 0.7rem;
+        }
+        .table span.seats {
+          font-size: 0.6rem;
+        }
+      }
+      .table {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        border-radius: 12px;
+        border: 1.5px solid;
+        padding: 10px 6px;
+        min-height: 3.5rem;
+        font-family: system-ui, sans-serif;
+        text-align: center;
+        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45);
+        transition: transform 0.15s ease, box-shadow 0.2s;
+      }
+      .table span.name {
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+      .table span.seats {
+        font-size: 0.65rem;
+        opacity: 0.85;
+      }
+      .table--avail {
+        background: var(--avail);
+        border-color: var(--avail-b);
+        color: var(--avail-t);
+      }
+      .table--res {
+        background: var(--res);
+        border-color: var(--res-b);
+        color: var(--res-t);
+      }
+      .table--occ {
+        background: var(--occ);
+        border-color: var(--occ-b);
+        color: var(--occ-t);
       }
       .legend {
         display: flex;
         flex-wrap: wrap;
-        gap: var(--space);
-        font-size: 0.8rem;
+        gap: calc(var(--s) * 0.75);
+        justify-content: center;
+        margin: calc(var(--s) * 1.5) 0 0;
+        font-family: system-ui, sans-serif;
+        font-size: 0.75rem;
+        color: #78716c;
       }
-      .pill {
+      .legend span {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 4px 10px;
-        border-radius: 8px;
-        font-weight: 500;
+        gap: 0.4rem;
       }
-      .pill--free {
-        background: var(--green);
-        color: var(--green-t);
-      }
-      .pill--res {
-        background: var(--amber);
-        color: var(--amber-t);
-      }
-      .pill--occ {
-        background: var(--red);
-        color: var(--red-t);
-      }
-      .dot {
+      .lg {
         width: 0.5rem;
         height: 0.5rem;
         border-radius: 2px;
-        flex-shrink: 0;
+      }
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: calc(var(--s) * 2.5);
       }
       a.btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 10px 18px;
-        border-radius: 12px;
+        padding: 12px 20px;
+        border-radius: 14px;
         font-size: 0.9rem;
         font-weight: 500;
+        font-family: system-ui, sans-serif;
         text-decoration: none;
         color: #fff;
         background: #1c1917;
-        box-shadow: var(--card);
+        box-shadow: 0 2px 4px rgb(0 0 0 / 0.08);
+        border: none;
+        cursor: pointer;
         transition: background 0.15s, transform 0.1s;
-        margin-top: 4px;
       }
       a.btn:hover {
         background: #292524;
@@ -132,60 +231,108 @@
       a.btn:active {
         transform: scale(0.99);
       }
-      a.ghost {
+      a.subtle {
         color: #b45309;
-        text-decoration: underline;
-        text-underline-offset: 2px;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        font-family: system-ui, sans-serif;
+        text-decoration: none;
+        border-bottom: 1px solid #fcd34d;
       }
-      .small {
+      a.subtle:hover {
+        color: #9a3412;
+      }
+      .demo-note {
         font-size: 0.8rem;
-        color: #78716c;
-        margin-top: 8px;
+        color: var(--faint);
+        font-style: italic;
+        margin: calc(var(--s) * -1) 0 calc(var(--s) * 1.5);
+        font-family: system-ui, sans-serif;
+        text-align: center;
+      }
+      footer {
+        font-size: 0.75rem;
+        color: var(--faint);
+        font-family: system-ui, sans-serif;
+        padding-top: var(--s);
+        border-top: 1px solid #e7e5e4;
+        margin-top: 0.5rem;
       }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <span class="badge">Tavolo</span>
-      <h1>Restaurant reservations</h1>
-      <p>
-        A minimal preview of the look-and-feel: calm layout and color-coded table states. The full app runs on your
-        machine with <strong>Node.js</strong> and <strong>PostgreSQL</strong> (see the repo for Docker, scripts, and
-        optional <strong>Express + Socket.io</strong>).
+    <div class="page">
+      <span class="eyebrow">Tavolo</span>
+      <h1>See the floor before the next service.</h1>
+      <p class="lede">
+        A calmer way to run reservations: guests find a time that fits, and your team always sees
+        <strong>who sits where</strong> — with a live feel for the room, not a spreadsheet of names.
       </p>
+      <ul class="bullets">
+        <li>Pick a moment that works for the party, without the back-and-forth.</li>
+        <li>Color tells you in a blink: open, on hold, or in the middle of a meal.</li>
+        <li>One place for the schedule and the <strong>table map</strong>, from front to back of house.</li>
+      </ul>
 
-      <div class="card">
-        <p style="font-weight: 500; color: #1c1916; margin-bottom: 12px">Table status</p>
-        <div class="legend">
-          <span class="pill pill--free"><span class="dot" style="background: #10b981"></span>Available</span>
-          <span class="pill pill--res"><span class="dot" style="background: #fbbf24"></span>Reserved</span>
-          <span class="pill pill--occ"><span class="dot" style="background: #ef4444"></span>Occupied</span>
+      <h2 class="sans">Sample floor plan</h2>
+      <p class="lede" style="margin-top: 0.25rem; font-size: 0.95rem; margin-bottom: 1rem">
+        Below is an illustration of a dining area with six tables (same layout as the demo app). Colors are
+        an example of how the room might look on a busy night.
+      </p>
+      <div class="floor-wrap" aria-label="Dining room table map, illustrative">
+        <p class="floor-label">Dining room · illustrative table states</p>
+        <div class="floor">
+          <!-- Top row: matches seed y=2, left → right T1, T2, T5 -->
+          <div class="table table--avail" title="Open for the next guest">
+            <span class="name">T1</span>
+            <span class="seats">2 seats</span>
+          </div>
+          <div class="table table--res" title="Held for a reservation">
+            <span class="name">T2</span>
+            <span class="seats">2 seats</span>
+          </div>
+          <div class="table table--avail" title="Open for a larger group">
+            <span class="name">T5</span>
+            <span class="seats">6 seats</span>
+          </div>
+          <!-- Bottom row: y=6 — T3, T4, T6 -->
+          <div class="table table--res" title="Upcoming booking">
+            <span class="name">T3</span>
+            <span class="seats">4 seats</span>
+          </div>
+          <div class="table table--avail" title="Open">
+            <span class="name">T4</span>
+            <span class="seats">4 seats</span>
+          </div>
+          <div class="table table--occ" title="Guests currently seated">
+            <span class="name">T6</span>
+            <span class="seats">6 seats</span>
+          </div>
+        </div>
+        <p class="demo-note">This page is a static snapshot. The product ties this map to real bookings and can update as your night unfolds.</p>
+        <div class="legend" role="list">
+          <span role="listitem"
+            ><span class="lg" style="background: #10b981" aria-hidden="true"></span> Available for booking</span
+          >
+          <span role="listitem"
+            ><span class="lg" style="background: #fbbf24" aria-hidden="true"></span> Reserved for later</span
+          >
+          <span role="listitem"
+            ><span class="lg" style="background: #f87171" aria-hidden="true"></span> Seated &amp; in service</span
+          >
         </div>
       </div>
 
-      <div>
-        <a
-          class="btn"
-          href="https://github.com/nellcodx/reservation"
-          target="_blank"
-          rel="noopener noreferrer"
+      <div class="cta-row">
+        <a class="btn sans" href="https://github.com/nellcodx/reservation" target="_blank" rel="noopener"
+          >Explore the project</a
         >
-          View source on GitHub
-        </a>
-        <p class="small" style="margin-top: 12px">
-          Optional container images are built by the workflow
-          <a
-            class="ghost"
-            href="https://github.com/nellcodx/reservation/actions/workflows/publish-ghcr.yml"
-            target="_blank"
-            rel="noopener"
-            >Publish to GitHub Container Registry</a
-          >.
-        </p>
       </div>
 
-      <footer>Static GitHub Pages preview — <a class="ghost" href="https://github.com/nellcodx/reservation" style="font-size: inherit">view repository</a></footer>
+      <footer>
+        Tavolo · hosted as a
+        <a class="subtle" href="https://github.com/nellcodx/reservation">GitHub Pages</a> preview. Build something
+        memorable on top of the open code when you are ready.
+      </footer>
     </div>
   </body>
 </html>
