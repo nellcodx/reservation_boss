@@ -16,8 +16,8 @@ build/
 .env.*
 !.env.example
 
-# Nested duplicate checkout (own .git) — not part of this monorepo
-reservation/
+# Nested duplicate checkout at repo root only (own .git) — not part of this monorepo
+/reservation/
 
 # OS / IDE
 .DS_Store

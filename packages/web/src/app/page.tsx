@@ -1,8 +1,11 @@
 import Link from "next/link";
+import { PublicNav } from "@/components/site/PublicNav";
 
 export default function Home() {
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-4 py-10">
+    <div className="min-h-dvh bg-stone-50/30">
+      <PublicNav />
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-4 py-10">
       <header className="space-y-2">
         <p className="text-xs font-semibold tracking-[0.18em] text-amber-700/90">HoReCa BOSS</p>
         <h1 className="text-3xl font-semibold tracking-tight text-stone-900 sm:text-4xl">Book a table in a few steps.</h1>
@@ -12,10 +15,16 @@ export default function Home() {
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           <Link
-            href="/book"
-            className="inline-flex items-center justify-center rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-stone-800"
+            href="/reservation"
+            className="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-red-700"
           >
-            Book a table
+            Reserve a table
+          </Link>
+          <Link
+            href="/book"
+            className="inline-flex items-center justify-center rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-800 transition hover:border-stone-300"
+          >
+            Live calendar / floor
           </Link>
           <Link
             href="/admin"
@@ -35,6 +44,7 @@ export default function Home() {
           <p className="mt-1 text-xs text-stone-500">Next.js + PostgreSQL; team dashboard, table map, waitlist, and optional realtime updates for operations.</p>
         </div>
       </section>
+    </div>
     </div>
   );
 }

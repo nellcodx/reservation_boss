@@ -1,0 +1,28 @@
+Fork workflow (dev on your copy, original stays the stable reference)
+================================================================
+
+1) Create a fork on GitHub
+   https://github.com/nellcodx/reservation → use the "Fork" button (into your account or org).
+
+2) In this repository, point "origin" at your fork and keep "nellcodx" as "upstream"
+
+   chmod +x scripts/setup-fork-remote.sh
+   ./scripts/setup-fork-remote.sh https://github.com/<YOUR_USER>/reservation.git
+
+   (SSH:  ./scripts/setup-fork-remote.sh git@github.com:<YOUR_USER>/reservation.git)
+
+3) Push your development branch to the fork only
+
+   git push -u origin main
+
+4) Sync updates from the stable repository when you want to compare or merge
+
+   git fetch upstream
+   git merge upstream/main
+   # resolve conflicts, then: git push origin main
+
+Do not run `git push upstream` for daily work; use `git push origin` only after step 2.
+
+If you still have only `origin` = nellcodx and have not run the script yet, any `git push origin`
+updates the original repository. Run the script first, or add your fork as `git remote add fork <url>`
+and use `git push fork main` until you switch defaults.

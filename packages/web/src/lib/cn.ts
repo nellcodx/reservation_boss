@@ -1,3 +1,2 @@
-export function cn(...v: (string | undefined | false)[]) {
-  return v.filter(Boolean).join(" ");
-}
+/** @deprecated Import from `@/lib/utils` — re-export for existing call sites */
+export { cn } from "./utils";
