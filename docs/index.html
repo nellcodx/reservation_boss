@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Tavolo — Restaurant reservations</title>
+    <meta name="theme-color" content="#fafaf9" />
     <meta
       name="description"
       content="Preview of the Tavolo reservation product skin: status colors and a link to the open-source app on GitHub."
@@ -52,6 +53,12 @@
         margin: 0;
         color: #57534e;
         font-size: 0.95rem;
+      }
+      footer {
+        margin-top: auto;
+        padding-top: calc(var(--space) * 2);
+        font-size: 0.75rem;
+        color: #a8a29e;
       }
       .badge {
         display: inline-block;
@@ -167,13 +174,18 @@
           View source on GitHub
         </a>
         <p class="small" style="margin-top: 12px">
-          Container images (optional) are built in
-          <a class="ghost" href="https://github.com/nellcodx/reservation/actions" target="_blank" rel="noopener"
-            >Actions</a
-          >
-          → <em>Publish to GitHub Container Registry</em>.
+          Optional container images are built by the workflow
+          <a
+            class="ghost"
+            href="https://github.com/nellcodx/reservation/actions/workflows/publish-ghcr.yml"
+            target="_blank"
+            rel="noopener"
+            >Publish to GitHub Container Registry</a
+          >.
         </p>
       </div>
+
+      <footer>Static GitHub Pages preview — <a class="ghost" href="https://github.com/nellcodx/reservation" style="font-size: inherit">view repository</a></footer>
     </div>
   </body>
 </html>
