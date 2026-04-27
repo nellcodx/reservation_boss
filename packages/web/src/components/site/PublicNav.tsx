@@ -14,7 +14,7 @@ const items = [
 export function PublicNav() {
   const pathname = usePathname() ?? "/";
   return (
-    <header className="sticky top-0 z-20 border-b border-stone-200/90 bg-white/90 backdrop-blur-sm">
+    <header className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-lg">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-2">
         <div className="min-w-0">
           <p className="text-[0.7rem] font-semibold tracking-[0.2em] text-stone-400">HoReCa BOSS</p>

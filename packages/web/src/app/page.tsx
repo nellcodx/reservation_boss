@@ -3,7 +3,7 @@ import { PublicNav } from "@/components/site/PublicNav";
 
 export default function Home() {
   return (
-    <div className="min-h-dvh bg-stone-50/30">
+    <div className="min-h-dvh bg-background">
       <PublicNav />
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-10 px-4 py-10">
       <header className="space-y-2">

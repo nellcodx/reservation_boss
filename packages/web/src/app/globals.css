@@ -117,6 +117,10 @@
   * {
     @apply border-border;
   }
+  /* Lovable: full canvas = same light grey as --background (0 0% 96%) */
+  html {
+    @apply bg-background;
+  }
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;

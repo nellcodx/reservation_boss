@@ -34,9 +34,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${spaceGrotesk.variable} ${geistMono.variable} min-h-dvh bg-background antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-background text-foreground antialiased selection:bg-primary/15">
+      <body className="flex min-h-dvh flex-col bg-background text-foreground antialiased selection:bg-primary/15">
         <Providers>{children}</Providers>
       </body>
     </html>
