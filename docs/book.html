@@ -171,11 +171,11 @@
       <p class="lede">Demo only — nothing is sent online. The full app checks live availability and lets guests tap a table on the map.</p>
 
       <div id="form-block" class="card">
-        <form id="book-form" novalidate>
+        <form id="book-form">
           <div class="row">
             <div class="field">
-              <label for="name">Name</label>
-              <input id="name" name="name" type="text" autocomplete="name" required />
+              <label for="name">Name <span aria-hidden="true" style="color:hsl(1,76%,55%)">*</span></label>
+              <input id="name" name="name" type="text" autocomplete="name" required aria-required="true" />
             </div>
             <div class="field">
               <label for="party">Guests</label>
@@ -201,8 +201,17 @@
             </div>
           </div>
           <div class="field">
-            <label for="email">Email (confirmation)</label>
-            <input id="email" name="email" type="email" autocomplete="email" inputmode="email" />
+            <label for="email">Email <span aria-hidden="true" style="color:hsl(1,76%,55%)">*</span></label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              inputmode="email"
+              required
+              aria-required="true"
+              placeholder="you@example.com"
+            />
           </div>
           <div class="field">
             <label for="notes">Notes (optional)</label>
@@ -233,8 +242,16 @@
         var f = document.getElementById("book-form");
         f.addEventListener("submit", function (e) {
           e.preventDefault();
+          if (!f.checkValidity()) {
+            f.reportValidity();
+            return;
+          }
           var name = (document.getElementById("name") || {}).value;
+          var email = (document.getElementById("email") || {}).value;
           if (!name || !String(name).trim()) {
+            return;
+          }
+          if (!email || !String(email).trim()) {
             return;
           }
           document.getElementById("form-block").classList.add("hidden");
