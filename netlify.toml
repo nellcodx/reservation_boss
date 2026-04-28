@@ -1,0 +1,24 @@
+# Netlify deploy config for the Next.js app at packages/web.
+#
+# Connect this repo in Netlify and the Lovable design will be live at:
+#   https://<your-site>.netlify.app/reservation
+#
+# We build from the repo root so npm workspaces (`@rr/web`) resolve correctly,
+# then point `publish` at the workspace's compiled `.next` output. The
+# @netlify/plugin-nextjs handler is what makes server routes work; Netlify
+# auto-installs it when the site is detected as Next.js.
+
+[build]
+  command = "npm ci && npm run build -w @rr/web"
+  publish = "packages/web/.next"
+
+[build.environment]
+  NODE_VERSION            = "20"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# DATABASE_URL must be set in Netlify → Site settings → Environment variables
+# for any /api/* route that touches the DB. The /reservation page itself is a
+# client-side form and renders without a database connection.
