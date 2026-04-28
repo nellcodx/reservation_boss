@@ -182,14 +182,91 @@
       }
       .floor {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: auto auto;
-        gap: 1rem 0.85rem;
-        align-items: center;
-        justify-items: center;
-        min-height: 11rem;
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
         max-width: 100%;
         padding: 0.35rem 0 0.25rem;
+      }
+      @media (min-width: 32rem) {
+        .floor {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .zone-room {
+        position: relative;
+        border-radius: 14px;
+        padding: 0.85rem 0.85rem 0.95rem;
+        border: 1px solid var(--line, #e7e5e4);
+        background: #ffffffd9;
+        box-shadow: 0 2px 8px rgb(0 0 0 / 0.04);
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+        min-height: 9.5rem;
+      }
+      .zone-room--main {
+        background:
+          radial-gradient(120% 80% at 0% 0%, rgb(254 226 226 / 0.55), transparent 60%),
+          #ffffffd9;
+        border-color: #fecaca;
+      }
+      .zone-room--terrace {
+        background:
+          radial-gradient(120% 80% at 100% 0%, rgb(187 247 208 / 0.6), transparent 60%),
+          #ffffffd9;
+        border-color: #bbf7d0;
+      }
+      .zone-room--vip {
+        background:
+          radial-gradient(120% 80% at 0% 100%, rgb(254 215 170 / 0.55), transparent 60%),
+          #ffffffd9;
+        border-color: #fed7aa;
+      }
+      .zone-room--window {
+        background:
+          linear-gradient(180deg, rgb(219 234 254 / 0) 0%, rgb(219 234 254 / 0.55) 78%, rgb(191 219 254 / 0.7) 100%),
+          #ffffffd9;
+        border-color: #bfdbfe;
+      }
+      .zone-room--window::after {
+        content: "";
+        position: absolute;
+        left: 8%;
+        right: 8%;
+        bottom: 6px;
+        height: 4px;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #93c5fd, #bfdbfe, #93c5fd);
+        opacity: 0.55;
+      }
+      .zone-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.5rem;
+        line-height: 1.2;
+      }
+      .zone-name {
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #1c1917;
+      }
+      .zone-meta {
+        font-size: 0.66rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .zone-tables {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem 0.55rem;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        padding-top: 0.15rem;
       }
       /* Table tops — round & oval, not boxes */
       .table-shape {
@@ -293,26 +370,70 @@
 
       <details class="hint">
         <summary>Optional: what a floor map usually looks like</summary>
-        <p class="floor-note">Decorative example — not required for guests to reserve. Colours: open · booked ahead · seated.</p>
-        <div class="floor" aria-label="Illustrative dining tables">
-          <div class="table-shape table--round table--avail" title="Available">
-            <span>1</span><span class="cap">2 seats</span>
-          </div>
-          <div class="table-shape table--oval table--res" title="Reserved">
-            <span>2</span><span class="cap">4 seats</span>
-          </div>
-          <div class="table-shape table--round table--avail" title="Available">
-            <span>3</span><span class="cap">2 seats</span>
-          </div>
-          <div class="table-shape table--oval table--res" title="Held">
-            <span>4</span><span class="cap">4 seats</span>
-          </div>
-          <div class="table-shape table--round table--avail" title="Available">
-            <span>5</span><span class="cap">2 seats</span>
-          </div>
-          <div class="table-shape table--oval table--occ" title="Seated">
-            <span>6</span><span class="cap">6 seats</span>
-          </div>
+        <p class="floor-note">
+          Decorative example — not required for guests to reserve. The four areas mirror the
+          zones in the booking form. Colours: open · booked ahead · seated.
+        </p>
+        <div class="floor" aria-label="Illustrative dining floor by zone">
+          <section class="zone-room zone-room--main" aria-label="Main Hall zone">
+            <header class="zone-head">
+              <span class="zone-name">Main Hall</span>
+              <span class="zone-meta">3 tables · 8 seats</span>
+            </header>
+            <div class="zone-tables">
+              <div class="table-shape table--round table--avail" title="Available">
+                <span>1</span><span class="cap">2 seats</span>
+              </div>
+              <div class="table-shape table--oval table--res" title="Reserved">
+                <span>2</span><span class="cap">4 seats</span>
+              </div>
+              <div class="table-shape table--round table--avail" title="Available">
+                <span>3</span><span class="cap">2 seats</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="zone-room zone-room--terrace" aria-label="Terrace zone">
+            <header class="zone-head">
+              <span class="zone-name">Terrace</span>
+              <span class="zone-meta">2 tables · 6 seats</span>
+            </header>
+            <div class="zone-tables">
+              <div class="table-shape table--oval table--avail" title="Available">
+                <span>4</span><span class="cap">4 seats</span>
+              </div>
+              <div class="table-shape table--round table--res" title="Reserved">
+                <span>5</span><span class="cap">2 seats</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="zone-room zone-room--vip" aria-label="VIP Room zone">
+            <header class="zone-head">
+              <span class="zone-name">VIP Room</span>
+              <span class="zone-meta">1 table · 6 seats</span>
+            </header>
+            <div class="zone-tables">
+              <div class="table-shape table--oval table--occ" title="Seated">
+                <span>6</span><span class="cap">6 seats</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="zone-room zone-room--window" aria-label="Window Table zone">
+            <header class="zone-head">
+              <span class="zone-name">Window Table</span>
+              <span class="zone-meta">2 tables · 4 seats</span>
+            </header>
+            <div class="zone-tables">
+              <div class="table-shape table--round table--avail" title="Available">
+                <span>7</span><span class="cap">2 seats</span>
+              </div>
+              <div class="table-shape table--round table--res" title="Reserved">
+                <span>8</span><span class="cap">2 seats</span>
+              </div>
+            </div>
+          </section>
         </div>
         <div class="legend">
           <span>Open</span>
