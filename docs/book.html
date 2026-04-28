@@ -4,242 +4,1270 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Book a table — HoReCa BOSS</title>
-    <meta name="theme-color" content="#fff7ed" />
+    <meta name="theme-color" content="#fff5f5" />
     <meta
       name="description"
-      content="Pick a date, time, and party size. Static demo — no backend."
+      content="Book a table: name, email, date, real-time slots, zone, party size. Static demo, no backend."
     />
     <style>
       :root {
+        --red: hsl(1, 76%, 55%);
+        --red-strong: hsl(1, 80%, 48%);
+        --red-ink: #7f1d1d;
+        --red-soft: rgba(220, 38, 38, 0.08);
+        --red-soft-2: rgba(220, 38, 38, 0.16);
+
         --text: #0c0a09;
         --muted: #57534e;
         --faint: #a8a29e;
+        --line: #e7e5e4;
+        --line-strong: #d6d3d1;
+
+        --surface: #ffffff;
+        --surface-2: #fafaf9;
+
+        --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 3px rgb(0 0 0 / 0.06);
+        --shadow-md: 0 4px 14px rgb(0 0 0 / 0.06), 0 2px 4px rgb(0 0 0 / 0.04);
+        --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.08), 0 4px 12px rgb(0 0 0 / 0.04);
+
+        --radius-sm: 10px;
+        --radius-md: 14px;
+        --radius-lg: 20px;
+
         --s: 8px;
       }
-      * {
+
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
       }
+
+      html,
       body {
         margin: 0;
+        padding: 0;
+      }
+
+      body {
         min-height: 100dvh;
         color: var(--text);
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
         line-height: 1.5;
         font-size: 1rem;
-        background: #fff7ed;
-        background-image: radial-gradient(900px 500px at 10% -5%, #ffedd5 0%, transparent 45%),
-          linear-gradient(180deg, #fffbeb 0%, #fafaf9 50%);
+        background-color: #ffffff;
+        background-image:
+          radial-gradient(circle at top left, rgba(220, 38, 38, 0.16), transparent 32%),
+          radial-gradient(circle at top right, rgba(220, 38, 38, 0.08), transparent 28%),
+          linear-gradient(135deg, #ffffff 0%, #fff5f5 45%, #fee2e2 100%);
+        background-attachment: fixed;
       }
+
       .page {
-        max-width: 26rem;
+        max-width: 64rem;
         margin: 0 auto;
-        padding: calc(var(--s) * 2.5) calc(var(--s) * 2) calc(var(--s) * 3);
+        padding: calc(var(--s) * 2.5) calc(var(--s) * 2) calc(var(--s) * 4);
       }
+
       a.back {
-        display: inline-block;
-        color: #b45309;
-        font-size: 0.88rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--red-strong);
+        font-size: 0.875rem;
         text-decoration: none;
         font-weight: 500;
-        border-bottom: 1px solid #fcd34d;
         margin-bottom: calc(var(--s) * 2);
+        transition: color 0.15s;
       }
       a.back:hover {
-        color: #9a3412;
+        color: var(--red-ink);
       }
+      a.back::before {
+        content: "←";
+        font-size: 1em;
+      }
+
       .eyebrow {
-        display: block;
+        display: inline-block;
         font-size: 0.72rem;
         letter-spacing: 0.08em;
-        color: #b45309;
+        color: var(--red-strong);
         font-weight: 700;
-        margin-bottom: var(--s);
+        margin-bottom: calc(var(--s) * 0.75);
+        text-transform: uppercase;
       }
       h1 {
-        font-size: 1.5rem;
+        font-size: clamp(1.5rem, 4vw, 2rem);
         font-weight: 700;
-        letter-spacing: -0.03em;
-        margin: 0 0 0.5rem;
+        letter-spacing: -0.025em;
+        line-height: 1.15;
+        margin: 0 0 calc(var(--s) * 0.75);
       }
       .lede {
         color: var(--muted);
         font-size: 0.95rem;
-        margin: 0 0 calc(var(--s) * 2);
+        margin: 0 0 calc(var(--s) * 3);
+        max-width: 38rem;
       }
+
+      /* ---------- layout ---------- */
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: calc(var(--s) * 2);
+      }
+      @media (min-width: 56rem) {
+        .grid {
+          grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+          gap: calc(var(--s) * 3);
+          align-items: start;
+        }
+      }
+
       .card {
-        background: #fff;
-        border: 1px solid #e7e5e4;
-        border-radius: 20px;
-        padding: calc(var(--s) * 2);
-        box-shadow: 0 4px 14px rgb(0 0 0 / 0.06);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        padding: calc(var(--s) * 2.5);
       }
-      label {
-        display: block;
-        font-size: 0.8rem;
-        font-weight: 500;
-        color: #44403c;
-        margin-bottom: 0.35rem;
+      @media (min-width: 36rem) {
+        .card {
+          padding: calc(var(--s) * 3);
+        }
+      }
+
+      /* ---------- form primitives ---------- */
+      fieldset {
+        border: 0;
+        padding: 0;
+        margin: 0 0 calc(var(--s) * 2.5);
+      }
+      fieldset:last-of-type {
+        margin-bottom: calc(var(--s) * 2);
+      }
+      legend {
+        font-size: 0.78rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 600;
+        margin-bottom: calc(var(--s) * 1.25);
+        padding: 0;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: calc(var(--s) * 1.5);
+      }
+      @media (min-width: 28rem) {
+        .row.row-2 {
+          grid-template-columns: 1fr 1fr;
+        }
       }
       .field {
-        margin-bottom: calc(var(--s) * 1.5);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
       }
-      input,
+      label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #44403c;
+      }
+      label .req {
+        color: var(--red);
+        margin-left: 2px;
+      }
+      input[type="text"],
+      input[type="email"],
+      input[type="tel"],
+      input[type="date"],
+      input[type="number"],
       select,
       textarea {
         width: 100%;
         padding: 12px 14px;
+        font: inherit;
         font-size: 1rem;
-        border: 1px solid #d6d3d1;
-        border-radius: 12px;
-        background: #fafaf9;
+        color: var(--text);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius-sm);
+        background: var(--surface-2);
+        transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+        min-height: 44px;
+      }
+      input:hover,
+      select:hover,
+      textarea:hover {
+        border-color: #a8a29e;
       }
       input:focus,
       select:focus,
       textarea:focus {
-        outline: 2px solid #fbbf24;
-        outline-offset: 1px;
-        border-color: #b45309;
-        background: #fff;
+        outline: none;
+        border-color: var(--red);
+        background: var(--surface);
+        box-shadow: 0 0 0 3px var(--red-soft);
+      }
+      input:invalid:not(:placeholder-shown),
+      input:user-invalid {
+        border-color: var(--red-strong);
       }
       textarea {
-        min-height: 3.5rem;
+        min-height: 4rem;
         resize: vertical;
       }
-      .row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: calc(var(--s) * 1.25);
+      .helper {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin: 6px 0 0;
       }
-      @media (max-width: 22rem) {
-        .row {
-          grid-template-columns: 1fr;
+
+      /* ---------- time slots ---------- */
+      .slots {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+        gap: 8px;
+      }
+      .slot {
+        appearance: none;
+        border: 1px solid var(--line-strong);
+        background: var(--surface);
+        color: var(--text);
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 12px 8px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: transform 0.1s, border-color 0.15s, background-color 0.15s,
+          color 0.15s, box-shadow 0.15s;
+        min-height: 44px;
+        line-height: 1;
+      }
+      .slot:hover {
+        border-color: var(--red);
+        color: var(--red-strong);
+      }
+      .slot[aria-checked="true"] {
+        background: var(--red);
+        border-color: var(--red);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.28);
+      }
+      .slot[disabled],
+      .slot[aria-disabled="true"] {
+        background: #f5f5f4;
+        border-color: var(--line);
+        color: var(--faint);
+        cursor: not-allowed;
+        text-decoration: line-through;
+      }
+      .slot[disabled]:hover,
+      .slot[aria-disabled="true"]:hover {
+        border-color: var(--line);
+        color: var(--faint);
+      }
+      .empty {
+        margin: calc(var(--s) * 1.25) 0 0;
+        padding: 12px 14px;
+        background: #fffbeb;
+        border: 1px dashed #fcd34d;
+        border-radius: var(--radius-sm);
+        color: #78350f;
+        font-size: 0.88rem;
+      }
+      .empty.hidden {
+        display: none;
+      }
+
+      /* ---------- zones ---------- */
+      .zones {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      @media (min-width: 30rem) {
+        .zones {
+          grid-template-columns: 1fr 1fr;
         }
       }
+      .zone {
+        appearance: none;
+        text-align: left;
+        font: inherit;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        padding: 14px 14px 12px;
+        cursor: pointer;
+        transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s,
+          transform 0.1s;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-height: 44px;
+      }
+      .zone:hover {
+        border-color: var(--red);
+      }
+      .zone[aria-checked="true"] {
+        border-color: var(--red);
+        background: var(--red-soft);
+        box-shadow: 0 0 0 3px var(--red-soft);
+      }
+      .zone-title {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .zone[aria-checked="true"] .zone-title {
+        color: var(--red-ink);
+      }
+      .zone-desc {
+        font-size: 0.82rem;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      /* ---------- submit button ---------- */
       .btn {
-        display: block;
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         width: 100%;
         padding: 14px 20px;
-        margin-top: calc(var(--s) * 0.5);
-        border: none;
-        border-radius: 0.75rem;
+        margin-top: calc(var(--s) * 1);
+        border: 0;
+        border-radius: 12px;
+        font: inherit;
         font-size: 1rem;
         font-weight: 700;
         color: #fff;
-        background: hsl(1, 76%, 55%);
-        box-shadow: 0 4px 12px rgb(225 29 72 / 0.25);
+        background: var(--red);
+        box-shadow: 0 6px 16px rgba(225, 29, 72, 0.28);
         cursor: pointer;
-        transition: opacity 0.15s, box-shadow 0.2s;
+        transition: background-color 0.15s, box-shadow 0.2s, transform 0.05s,
+          opacity 0.15s;
+        min-height: 48px;
       }
       .btn:hover {
-        opacity: 0.92;
-        box-shadow: 0 6px 16px rgb(225 29 72 / 0.32);
+        background: var(--red-strong);
+        box-shadow: 0 8px 20px rgba(225, 29, 72, 0.36);
       }
       .btn:active {
         transform: scale(0.99);
       }
+      .btn:disabled {
+        background: #d6d3d1;
+        box-shadow: none;
+        cursor: not-allowed;
+        color: #fafaf9;
+      }
       .disclaimer {
         font-size: 0.75rem;
         color: var(--faint);
-        margin: calc(var(--s) * 1.5) 0 0;
+        margin: calc(var(--s) * 1.25) 0 0;
         line-height: 1.45;
+        text-align: center;
       }
-      .hidden {
-        display: none;
+
+      /* ---------- summary ---------- */
+      .summary-card {
+        position: sticky;
+        top: calc(var(--s) * 2);
       }
+      @media (max-width: 56rem) {
+        .summary-card {
+          position: static;
+        }
+      }
+      .summary-card h2 {
+        margin: 0 0 calc(var(--s) * 0.5);
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .summary-card .sub {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin: 0 0 calc(var(--s) * 2);
+      }
+
+      .summary-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: calc(var(--s) * 1);
+        margin: 0 0 calc(var(--s) * 2);
+        padding: calc(var(--s) * 1.5) 0;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .summary-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 0.92rem;
+      }
+      .summary-row dt {
+        color: var(--muted);
+        margin: 0;
+        font-weight: 500;
+      }
+      .summary-row dd {
+        margin: 0;
+        font-weight: 600;
+        color: var(--text);
+        text-align: right;
+      }
+      .summary-row dd[data-empty="true"] {
+        color: var(--faint);
+        font-weight: 500;
+        font-style: italic;
+      }
+
+      /* ---------- status badge ---------- */
+      .status-block {
+        margin-top: calc(var(--s) * 1.5);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .status-label {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        align-self: flex-start;
+        padding: 6px 12px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        border-radius: 999px;
+        border: 1px solid;
+        line-height: 1;
+      }
+      .badge::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      .badge[data-state="idle"] {
+        background: #f5f5f4;
+        color: var(--muted);
+        border-color: var(--line);
+      }
+      .badge[data-state="pending"] {
+        background: #fef3c7;
+        color: #92400e;
+        border-color: #fcd34d;
+      }
+      .badge[data-state="confirmed"] {
+        background: #dcfce7;
+        color: #166534;
+        border-color: #86efac;
+      }
+      .badge[data-state="unavailable"] {
+        background: #fee2e2;
+        color: #991b1b;
+        border-color: #fca5a5;
+      }
+      .status-text {
+        font-size: 0.88rem;
+        color: var(--muted);
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      /* ---------- toast ---------- */
+      #toast-region {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 50;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        pointer-events: none;
+        max-width: calc(100vw - 32px);
+      }
+      .toast {
+        pointer-events: auto;
+        background: #0c0a09;
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 12px 16px;
+        border-radius: 12px;
+        box-shadow: var(--shadow-lg);
+        animation: toast-in 0.18s ease-out;
+        max-width: 22rem;
+      }
+      .toast[data-tone="success"] {
+        background: #166534;
+      }
+      .toast[data-tone="error"] {
+        background: #991b1b;
+      }
+      .toast[data-tone="pending"] {
+        background: #92400e;
+      }
+      @keyframes toast-in {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .toast,
+        .slot,
+        .zone,
+        .btn {
+          transition: none;
+          animation: none;
+        }
+      }
+
+      /* ---------- success state ---------- */
       .success {
         text-align: center;
-        padding: 1rem 0 0.5rem;
       }
       .success h2 {
-        font-size: 1.2rem;
+        font-size: 1.25rem;
         font-weight: 700;
-        margin: 0 0 0.5rem;
-        color: #0c0a09;
+        margin: 0 0 calc(var(--s) * 1);
       }
       .success p {
         color: var(--muted);
-        font-size: 0.92rem;
-        margin: 0;
+        font-size: 0.95rem;
+        margin: 0 0 calc(var(--s) * 2);
+      }
+      .success .badge {
+        align-self: center;
+        margin: 0 auto calc(var(--s) * 2);
+      }
+      .hidden {
+        display: none !important;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+      }
+      .btn-secondary {
+        appearance: none;
+        background: var(--surface);
+        color: var(--red-strong);
+        border: 1px solid var(--line-strong);
+        padding: 12px 18px;
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+      }
+      .btn-secondary:hover {
+        border-color: var(--red);
+        color: var(--red-ink);
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
     </style>
   </head>
   <body>
+    <div id="toast-region" aria-live="polite" aria-atomic="true"></div>
+
     <div class="page">
-      <a class="back" href="index.html">← Back home</a>
+      <a class="back" href="index.html">Back home</a>
       <span class="eyebrow">HoReCa BOSS · guest</span>
       <h1>Book a table</h1>
-      <p class="lede">Demo only — nothing is sent online. The full app checks live availability and lets guests tap a table on the map.</p>
+      <p class="lede">
+        Pick a date, an available time, and a zone — the summary on the right updates as you go.
+        This is a static demo, so nothing is sent online.
+      </p>
 
-      <div id="form-block" class="card">
-        <form id="book-form" novalidate>
-          <div class="row">
-            <div class="field">
-              <label for="name">Name</label>
-              <input id="name" name="name" type="text" autocomplete="name" required />
+      <div class="grid">
+        <!-- ============= FORM ============= -->
+        <section class="card" id="form-block" aria-labelledby="form-heading">
+          <h2 id="form-heading" class="sr-only">Reservation form</h2>
+          <form id="book-form">
+            <fieldset>
+              <legend>Your details</legend>
+              <div class="row row-2">
+                <div class="field">
+                  <label for="name">Name <span class="req" aria-hidden="true">*</span></label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    autocomplete="name"
+                    required
+                    aria-required="true"
+                    placeholder="Full name"
+                  />
+                </div>
+                <div class="field">
+                  <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    inputmode="email"
+                    required
+                    aria-required="true"
+                    placeholder="you@example.com"
+                  />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Date &amp; party</legend>
+              <div class="row row-2">
+                <div class="field">
+                  <label for="date">Date <span class="req" aria-hidden="true">*</span></label>
+                  <input id="date" name="date" type="date" required aria-required="true" />
+                </div>
+                <div class="field">
+                  <label for="guests">Guests <span class="req" aria-hidden="true">*</span></label>
+                  <select id="guests" name="guests" required aria-required="true">
+                    <option value="1">1 guest</option>
+                    <option value="2" selected>2 guests</option>
+                    <option value="3">3 guests</option>
+                    <option value="4">4 guests</option>
+                    <option value="5">5 guests</option>
+                    <option value="6">6 guests</option>
+                    <option value="7">7+ guests</option>
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Time <span class="req" aria-hidden="true">*</span></legend>
+              <p class="helper" id="time-helper">
+                Available times are shown based on current local time.
+              </p>
+              <div
+                class="slots"
+                id="time-slots"
+                role="radiogroup"
+                aria-labelledby="time-helper"
+              ></div>
+              <p class="empty hidden" id="no-slots" role="status">
+                No available slots left for today. Please choose another date.
+              </p>
+              <input
+                type="hidden"
+                id="time-value"
+                name="time"
+                required
+                aria-required="true"
+              />
+            </fieldset>
+
+            <fieldset>
+              <legend>Reservation zone <span class="req" aria-hidden="true">*</span></legend>
+              <div
+                class="zones"
+                id="zones"
+                role="radiogroup"
+                aria-label="Reservation zone"
+              ></div>
+              <input
+                type="hidden"
+                id="zone-value"
+                name="zone"
+                required
+                aria-required="true"
+              />
+            </fieldset>
+
+            <fieldset>
+              <legend>Comment</legend>
+              <div class="field">
+                <label for="comment" class="sr-only">Special request</label>
+                <textarea
+                  id="comment"
+                  name="comment"
+                  placeholder="Allergies, high chair, anniversary…"
+                ></textarea>
+              </div>
+            </fieldset>
+
+            <button type="submit" class="btn" id="submit-btn">Reserve</button>
+            <p class="disclaimer">
+              Static preview — connect a backend for saved bookings, SMS, and email confirmations.
+            </p>
+          </form>
+        </section>
+
+        <!-- ============= SUMMARY ============= -->
+        <aside class="card summary-card" aria-labelledby="summary-heading">
+          <h2 id="summary-heading">Your reservation</h2>
+          <p class="sub" id="summary-sub">Fill in the form to see live details.</p>
+          <dl class="summary-list">
+            <div class="summary-row">
+              <dt>Date</dt>
+              <dd id="sum-date" data-empty="true">Not selected yet</dd>
             </div>
-            <div class="field">
-              <label for="party">Guests</label>
-              <select id="party" name="party" required>
-                <option value="1">1</option>
-                <option value="2" selected>2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7+</option>
-              </select>
+            <div class="summary-row">
+              <dt>Time</dt>
+              <dd id="sum-time" data-empty="true">Not selected yet</dd>
             </div>
-          </div>
-          <div class="row">
-            <div class="field">
-              <label for="date">Date</label>
-              <input id="date" name="date" type="date" required />
+            <div class="summary-row">
+              <dt>Guests</dt>
+              <dd id="sum-guests">2 guests</dd>
             </div>
-            <div class="field">
-              <label for="time">Time</label>
-              <input id="time" name="time" type="time" value="19:00" required />
+            <div class="summary-row">
+              <dt>Zone</dt>
+              <dd id="sum-zone" data-empty="true">Not selected yet</dd>
             </div>
+            <div class="summary-row">
+              <dt>Name</dt>
+              <dd id="sum-name" data-empty="true">Not selected yet</dd>
+            </div>
+          </dl>
+
+          <div class="status-block">
+            <span class="status-label">Request status</span>
+            <span
+              class="badge"
+              id="status-badge"
+              data-state="idle"
+              role="status"
+              aria-live="polite"
+              >Awaiting submit</span
+            >
+            <p class="status-text" id="status-text">
+              Submit the form to send a reservation request.
+            </p>
           </div>
-          <div class="field">
-            <label for="email">Email (confirmation)</label>
-            <input id="email" name="email" type="email" autocomplete="email" inputmode="email" />
-          </div>
-          <div class="field">
-            <label for="notes">Notes (optional)</label>
-            <textarea id="notes" name="notes" placeholder="Allergies, high chair…"></textarea>
-          </div>
-          <button type="submit" class="btn">Submit request</button>
-          <p class="disclaimer">Static preview — connect the backend for saved bookings and SMS.</p>
-        </form>
+        </aside>
       </div>
 
-      <div id="success-block" class="card success hidden" role="status" aria-live="polite">
-        <h2>Thanks — request captured</h2>
-        <p id="success-line">In production you’d receive SMS or email with your reservation.</p>
-        <p style="margin-top: 1rem">
-          <a class="back" style="display: inline; margin: 0; border: 0; font-size: 0.95rem" href="index.html">Home</a>
+      <!-- ============= SUCCESS ============= -->
+      <section
+        class="card success hidden"
+        id="success-block"
+        role="status"
+        aria-live="polite"
+        style="margin-top: calc(var(--s) * 2)"
+      >
+        <span
+          class="badge"
+          id="success-badge"
+          data-state="confirmed"
+          aria-hidden="true"
+          >Confirmed</span
+        >
+        <h2 id="success-title">Thanks — request captured</h2>
+        <p id="success-line">
+          In production you’d receive SMS or email with your reservation details.
         </p>
-      </div>
+        <div class="actions">
+          <button type="button" class="btn-secondary" id="book-again-btn">
+            Make another booking
+          </button>
+          <a class="btn-secondary" href="index.html">Back home</a>
+        </div>
+      </section>
     </div>
+
     <script>
       (function () {
-        var d = document.getElementById("date");
-        if (d) {
-          var t = new Date();
-          t.setDate(t.getDate() + 1);
-          d.min = t.toISOString().slice(0, 10);
-          d.valueAsDate = t;
+        "use strict";
+
+        // ---------- constants ----------
+        var DEMO_SLOTS = ["12:00", "13:30", "15:00", "18:00", "19:30", "21:00"];
+        var ZONES = [
+          {
+            id: "main-hall",
+            name: "Main Hall",
+            desc: "Comfortable indoor seating for everyday dining."
+          },
+          {
+            id: "terrace",
+            name: "Terrace",
+            desc: "Outdoor seating with a relaxed atmosphere."
+          },
+          {
+            id: "vip-room",
+            name: "VIP Room",
+            desc: "Private area for special occasions."
+          },
+          {
+            id: "window-table",
+            name: "Window Table",
+            desc: "Cozy seating near the window."
+          }
+        ];
+        var STATUS_COPY = {
+          idle: {
+            label: "Awaiting submit",
+            text: "Submit the form to send a reservation request."
+          },
+          pending: {
+            label: "Pending",
+            text: "Your reservation request is being processed."
+          },
+          confirmed: {
+            label: "Confirmed",
+            text: "Your table reservation has been confirmed."
+          },
+          unavailable: {
+            label: "Unavailable",
+            text:
+              "This time slot is currently unavailable. Please choose another time."
+          }
+        };
+
+        // ---------- helpers ----------
+        function pad2(n) {
+          return n < 10 ? "0" + n : "" + n;
         }
-        var f = document.getElementById("book-form");
-        f.addEventListener("submit", function (e) {
+        function todayISO() {
+          var t = new Date();
+          return (
+            t.getFullYear() +
+            "-" +
+            pad2(t.getMonth() + 1) +
+            "-" +
+            pad2(t.getDate())
+          );
+        }
+        function parseTime(hhmm) {
+          var p = String(hhmm || "").split(":");
+          return { h: parseInt(p[0], 10) || 0, m: parseInt(p[1], 10) || 0 };
+        }
+        function formatNiceDate(iso) {
+          if (!iso) return "";
+          var d = new Date(iso + "T00:00:00");
+          if (isNaN(d.getTime())) return iso;
+          try {
+            return d.toLocaleDateString(undefined, {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+              year: "numeric"
+            });
+          } catch (e) {
+            return iso;
+          }
+        }
+
+        function $(id) {
+          return document.getElementById(id);
+        }
+
+        // ---------- date min ----------
+        var dateInput = $("date");
+        var today = todayISO();
+        dateInput.min = today;
+        if (!dateInput.value) dateInput.value = today;
+
+        // ---------- zones render ----------
+        var zonesEl = $("zones");
+        var zoneValue = $("zone-value");
+
+        function renderZones() {
+          var html = "";
+          for (var i = 0; i < ZONES.length; i++) {
+            var z = ZONES[i];
+            html +=
+              '<button type="button" class="zone" role="radio" ' +
+              'aria-checked="false" data-zone="' +
+              z.id +
+              '">' +
+              '<span class="zone-title">' +
+              z.name +
+              "</span>" +
+              '<span class="zone-desc">' +
+              z.desc +
+              "</span>" +
+              "</button>";
+          }
+          zonesEl.innerHTML = html;
+        }
+        renderZones();
+
+        zonesEl.addEventListener("click", function (e) {
+          var btn = e.target.closest(".zone");
+          if (!btn) return;
+          var buttons = zonesEl.querySelectorAll(".zone");
+          for (var i = 0; i < buttons.length; i++) {
+            buttons[i].setAttribute(
+              "aria-checked",
+              buttons[i] === btn ? "true" : "false"
+            );
+          }
+          var id = btn.getAttribute("data-zone");
+          zoneValue.value = id;
+          var z = ZONES.find(function (x) {
+            return x.id === id;
+          });
+          updateSummary({ zoneName: z ? z.name : "" });
+          zoneValue.setCustomValidity("");
+        });
+
+        // keyboard support for radiogroup
+        zonesEl.addEventListener("keydown", function (e) {
+          var keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"];
+          if (keys.indexOf(e.key) === -1) return;
+          var btns = Array.prototype.slice.call(
+            zonesEl.querySelectorAll(".zone")
+          );
+          var idx = btns.indexOf(document.activeElement);
+          if (idx < 0) idx = 0;
+          var next =
+            e.key === "ArrowRight" || e.key === "ArrowDown"
+              ? (idx + 1) % btns.length
+              : (idx - 1 + btns.length) % btns.length;
           e.preventDefault();
-          var name = (document.getElementById("name") || {}).value;
-          if (!name || !String(name).trim()) {
+          btns[next].focus();
+          btns[next].click();
+        });
+
+        // ---------- time slots ----------
+        var slotsEl = $("time-slots");
+        var noSlotsEl = $("no-slots");
+        var timeValue = $("time-value");
+
+        function renderSlots() {
+          var selectedDate = dateInput.value || today;
+          var isToday = selectedDate === todayISO();
+          var now = new Date();
+          var nowMin = now.getHours() * 60 + now.getMinutes();
+
+          var prevSelected = timeValue.value;
+          var html = "";
+          var anyAvail = false;
+
+          for (var i = 0; i < DEMO_SLOTS.length; i++) {
+            var t = DEMO_SLOTS[i];
+            var p = parseTime(t);
+            var slotMin = p.h * 60 + p.m;
+            var disabled = isToday && slotMin <= nowMin;
+            if (!disabled) anyAvail = true;
+            var checked = !disabled && prevSelected === t ? "true" : "false";
+            html +=
+              '<button type="button" class="slot" role="radio" ' +
+              'data-time="' +
+              t +
+              '" ' +
+              'aria-checked="' +
+              checked +
+              '" ' +
+              (disabled ? 'disabled aria-disabled="true" tabindex="-1"' : "") +
+              ">" +
+              t +
+              "</button>";
+          }
+          slotsEl.innerHTML = html;
+
+          if (isToday && !anyAvail) {
+            noSlotsEl.classList.remove("hidden");
+            slotsEl.style.display = "none";
+          } else {
+            noSlotsEl.classList.add("hidden");
+            slotsEl.style.display = "";
+          }
+
+          // if selected slot is no longer available, clear it
+          var stillValid = slotsEl.querySelector(
+            '.slot[data-time="' + prevSelected + '"]:not([disabled])'
+          );
+          if (!stillValid) {
+            timeValue.value = "";
+            updateSummary({ time: "" });
+          }
+        }
+
+        slotsEl.addEventListener("click", function (e) {
+          var btn = e.target.closest(".slot");
+          if (!btn || btn.disabled) return;
+          var buttons = slotsEl.querySelectorAll(".slot");
+          for (var i = 0; i < buttons.length; i++) {
+            buttons[i].setAttribute(
+              "aria-checked",
+              buttons[i] === btn ? "true" : "false"
+            );
+          }
+          var t = btn.getAttribute("data-time");
+          timeValue.value = t;
+          updateSummary({ time: t });
+          timeValue.setCustomValidity("");
+        });
+
+        slotsEl.addEventListener("keydown", function (e) {
+          var keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"];
+          if (keys.indexOf(e.key) === -1) return;
+          var btns = Array.prototype.slice.call(
+            slotsEl.querySelectorAll(".slot:not([disabled])")
+          );
+          if (!btns.length) return;
+          var idx = btns.indexOf(document.activeElement);
+          if (idx < 0) idx = 0;
+          var next =
+            e.key === "ArrowRight" || e.key === "ArrowDown"
+              ? (idx + 1) % btns.length
+              : (idx - 1 + btns.length) % btns.length;
+          e.preventDefault();
+          btns[next].focus();
+          btns[next].click();
+        });
+
+        dateInput.addEventListener("change", function () {
+          if (dateInput.value && dateInput.value < todayISO()) {
+            dateInput.value = todayISO();
+          }
+          renderSlots();
+          updateSummary({ date: dateInput.value });
+        });
+
+        // refresh slots once a minute so they stay accurate without reload
+        setInterval(renderSlots, 60 * 1000);
+
+        // ---------- live summary ----------
+        var sum = {
+          date: dateInput.value,
+          time: "",
+          guests: $("guests").value,
+          zoneName: "",
+          name: ""
+        };
+
+        function updateSummary(patch) {
+          if (patch) {
+            for (var k in patch) {
+              if (Object.prototype.hasOwnProperty.call(patch, k)) sum[k] = patch[k];
+            }
+          }
+          var dateEl = $("sum-date");
+          var timeEl = $("sum-time");
+          var guestsEl = $("sum-guests");
+          var zoneEl = $("sum-zone");
+          var nameEl = $("sum-name");
+
+          if (sum.date) {
+            dateEl.textContent = formatNiceDate(sum.date);
+            dateEl.removeAttribute("data-empty");
+          } else {
+            dateEl.textContent = "Not selected yet";
+            dateEl.setAttribute("data-empty", "true");
+          }
+
+          if (sum.time) {
+            timeEl.textContent = sum.time;
+            timeEl.removeAttribute("data-empty");
+          } else {
+            timeEl.textContent = "Not selected yet";
+            timeEl.setAttribute("data-empty", "true");
+          }
+
+          var g = parseInt(sum.guests, 10) || 0;
+          if (g >= 7) {
+            guestsEl.textContent = "7+ guests";
+          } else if (g === 1) {
+            guestsEl.textContent = "1 guest";
+          } else {
+            guestsEl.textContent = g + " guests";
+          }
+          guestsEl.removeAttribute("data-empty");
+
+          if (sum.zoneName) {
+            zoneEl.textContent = sum.zoneName;
+            zoneEl.removeAttribute("data-empty");
+          } else {
+            zoneEl.textContent = "Not selected yet";
+            zoneEl.setAttribute("data-empty", "true");
+          }
+
+          if (sum.name) {
+            nameEl.textContent = sum.name;
+            nameEl.removeAttribute("data-empty");
+          } else {
+            nameEl.textContent = "Not selected yet";
+            nameEl.setAttribute("data-empty", "true");
+          }
+        }
+
+        $("guests").addEventListener("change", function (e) {
+          updateSummary({ guests: e.target.value });
+        });
+        $("name").addEventListener("input", function (e) {
+          updateSummary({ name: e.target.value.trim() });
+        });
+
+        // ---------- status & toast ----------
+        var statusBadge = $("status-badge");
+        var statusText = $("status-text");
+        var toastRegion = $("toast-region");
+
+        function setStatus(state) {
+          var copy = STATUS_COPY[state] || STATUS_COPY.idle;
+          statusBadge.setAttribute("data-state", state);
+          statusBadge.textContent = copy.label;
+          statusText.textContent = copy.text;
+        }
+
+        function toast(message, tone) {
+          var t = document.createElement("div");
+          t.className = "toast";
+          t.setAttribute("data-tone", tone || "info");
+          t.setAttribute("role", "status");
+          t.textContent = message;
+          toastRegion.appendChild(t);
+          setTimeout(function () {
+            t.style.transition = "opacity 0.25s, transform 0.25s";
+            t.style.opacity = "0";
+            t.style.transform = "translateY(-8px)";
+            setTimeout(function () {
+              if (t.parentNode) t.parentNode.removeChild(t);
+            }, 280);
+          }, 3200);
+        }
+
+        // ---------- submit ----------
+        var form = $("book-form");
+        var submitBtn = $("submit-btn");
+        var formBlock = $("form-block");
+        var successBlock = $("success-block");
+
+        function validate() {
+          // hidden time / zone need a friendly message because the browser
+          // can't focus a `display: none` ancestor's hidden input.
+          if (!timeValue.value) {
+            toast("Please pick an available time slot.", "error");
+            var firstSlot = slotsEl.querySelector(".slot:not([disabled])");
+            if (firstSlot) firstSlot.focus();
+            return false;
+          }
+          if (!zoneValue.value) {
+            toast("Please choose a reservation zone.", "error");
+            var firstZone = zonesEl.querySelector(".zone");
+            if (firstZone) firstZone.focus();
+            return false;
+          }
+          if (!form.checkValidity()) {
+            form.reportValidity();
+            return false;
+          }
+          var guests = parseInt($("guests").value, 10);
+          if (!guests || guests < 1) {
+            toast("Number of guests must be at least 1.", "error");
+            return false;
+          }
+          return true;
+        }
+
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (!validate()) return;
+
+          var time = timeValue.value;
+          var zoneId = zoneValue.value;
+          var zone = ZONES.find(function (z) {
+            return z.id === zoneId;
+          });
+          var zoneName = zone ? zone.name : zoneId;
+
+          // Demo logic: 19:30 is unavailable
+          if (time === "19:30") {
+            setStatus("unavailable");
+            toast(STATUS_COPY.unavailable.text, "error");
             return;
           }
-          document.getElementById("form-block").classList.add("hidden");
-          document.getElementById("success-block").classList.remove("hidden");
+
+          submitBtn.disabled = true;
+          setStatus("pending");
+          toast(STATUS_COPY.pending.text, "pending");
+
+          setTimeout(function () {
+            setStatus("confirmed");
+            toast(STATUS_COPY.confirmed.text, "success");
+
+            // success block content
+            var successLine = $("success-line");
+            successLine.textContent =
+              ($("name").value || "Guest") +
+              ", your table in " +
+              zoneName +
+              " on " +
+              formatNiceDate(dateInput.value) +
+              " at " +
+              time +
+              " is confirmed (demo).";
+            formBlock.classList.add("hidden");
+            successBlock.classList.remove("hidden");
+            successBlock.scrollIntoView({ behavior: "smooth", block: "start" });
+            submitBtn.disabled = false;
+          }, 1400);
         });
+
+        $("book-again-btn").addEventListener("click", function () {
+          // reset form to a clean state
+          form.reset();
+          // re-init defaults
+          dateInput.value = todayISO();
+          timeValue.value = "";
+          zoneValue.value = "";
+          var zb = zonesEl.querySelectorAll(".zone");
+          for (var i = 0; i < zb.length; i++) zb[i].setAttribute("aria-checked", "false");
+          renderSlots();
+          updateSummary({
+            date: dateInput.value,
+            time: "",
+            guests: $("guests").value,
+            zoneName: "",
+            name: ""
+          });
+          setStatus("idle");
+          successBlock.classList.add("hidden");
+          formBlock.classList.remove("hidden");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        // ---------- init ----------
+        renderSlots();
+        updateSummary();
+        setStatus("idle");
       })();
     </script>
   </body>
