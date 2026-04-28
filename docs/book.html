@@ -698,6 +698,8 @@
                     required
                     aria-required="true"
                     placeholder="you@example.com"
+                    pattern="[^\s@]+@[^\s@]+\.[A-Za-z]{2,}"
+                    title="Enter a complete email like you@example.com"
                   />
                 </div>
               </div>
@@ -777,6 +779,12 @@
               </div>
             </fieldset>
 
+            <p
+              class="empty hidden"
+              id="capacity-warn"
+              role="alert"
+              style="background:#fee2e2;border-color:#fca5a5;color:#7f1d1d;"
+            ></p>
             <button type="submit" class="btn" id="submit-btn">Reserve</button>
             <p class="disclaimer">
               Static preview — connect a backend for saved bookings, SMS, and email confirmations.
@@ -804,6 +812,10 @@
             <div class="summary-row">
               <dt>Zone</dt>
               <dd id="sum-zone" data-empty="true">Not selected yet</dd>
+            </div>
+            <div class="summary-row">
+              <dt>Capacity</dt>
+              <dd id="sum-capacity" data-empty="true">Pick a zone</dd>
             </div>
             <div class="summary-row">
               <dt>Name</dt>
@@ -862,28 +874,35 @@
 
         // ---------- constants ----------
         var DEMO_SLOTS = ["12:00", "13:30", "15:00", "18:00", "19:30", "21:00"];
+        // Booked / blocked slots — surfaced as "Booked" in the UI so guests can't pick them.
+        var BOOKED_SLOTS = ["19:30"];
         var ZONES = [
           {
             id: "main-hall",
             name: "Main Hall",
-            desc: "Comfortable indoor seating for everyday dining."
+            desc: "Comfortable indoor seating for everyday dining.",
+            capacity: 8
           },
           {
             id: "terrace",
             name: "Terrace",
-            desc: "Outdoor seating with a relaxed atmosphere."
+            desc: "Outdoor seating with a relaxed atmosphere.",
+            capacity: 6
           },
           {
             id: "vip-room",
             name: "VIP Room",
-            desc: "Private area for special occasions."
+            desc: "Private area for special occasions.",
+            capacity: 6
           },
           {
             id: "window-table",
             name: "Window Table",
-            desc: "Cozy seating near the window."
+            desc: "Cozy seating near the window.",
+            capacity: 4
           }
         ];
+        var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/;
         var STATUS_COPY = {
           idle: {
             label: "Awaiting submit",
@@ -960,9 +979,14 @@
               '<button type="button" class="zone" role="radio" ' +
               'aria-checked="false" data-zone="' +
               z.id +
+              '" data-capacity="' +
+              z.capacity +
               '">' +
               '<span class="zone-title">' +
               z.name +
+              ' <span class="zone-desc" style="font-weight:600;color:var(--muted);margin-left:auto;font-size:0.75rem">up to ' +
+              z.capacity +
+              "</span>" +
               "</span>" +
               '<span class="zone-desc">' +
               z.desc +
@@ -988,8 +1012,12 @@
           var z = ZONES.find(function (x) {
             return x.id === id;
           });
-          updateSummary({ zoneName: z ? z.name : "" });
+          updateSummary({
+            zoneName: z ? z.name : "",
+            zoneCapacity: z ? z.capacity : 0
+          });
           zoneValue.setCustomValidity("");
+          checkCapacity();
         });
 
         // keyboard support for radiogroup
@@ -1029,9 +1057,12 @@
             var t = DEMO_SLOTS[i];
             var p = parseTime(t);
             var slotMin = p.h * 60 + p.m;
-            var disabled = isToday && slotMin <= nowMin;
+            var pastToday = isToday && slotMin <= nowMin;
+            var booked = BOOKED_SLOTS.indexOf(t) !== -1;
+            var disabled = pastToday || booked;
             if (!disabled) anyAvail = true;
             var checked = !disabled && prevSelected === t ? "true" : "false";
+            var label = t + (booked && !pastToday ? " · booked" : "");
             html +=
               '<button type="button" class="slot" role="radio" ' +
               'data-time="' +
@@ -1040,9 +1071,16 @@
               'aria-checked="' +
               checked +
               '" ' +
+              'title="' +
+              (booked
+                ? "This time is already booked"
+                : pastToday
+                  ? "This time is in the past"
+                  : "Reserve " + t) +
+              '" ' +
               (disabled ? 'disabled aria-disabled="true" tabindex="-1"' : "") +
               ">" +
-              t +
+              label +
               "</button>";
           }
           slotsEl.innerHTML = html;
@@ -1116,6 +1154,7 @@
           time: "",
           guests: $("guests").value,
           zoneName: "",
+          zoneCapacity: 0,
           name: ""
         };
 
@@ -1129,6 +1168,7 @@
           var timeEl = $("sum-time");
           var guestsEl = $("sum-guests");
           var zoneEl = $("sum-zone");
+          var capEl = $("sum-capacity");
           var nameEl = $("sum-name");
 
           if (sum.date) {
@@ -1165,6 +1205,14 @@
             zoneEl.setAttribute("data-empty", "true");
           }
 
+          if (sum.zoneCapacity > 0) {
+            capEl.textContent = "up to " + sum.zoneCapacity + " guests";
+            capEl.removeAttribute("data-empty");
+          } else {
+            capEl.textContent = "Pick a zone";
+            capEl.setAttribute("data-empty", "true");
+          }
+
           if (sum.name) {
             nameEl.textContent = sum.name;
             nameEl.removeAttribute("data-empty");
@@ -1174,8 +1222,31 @@
           }
         }
 
+        var capacityWarn = $("capacity-warn");
+        var submitBtnRef = $("submit-btn");
+
+        function checkCapacity() {
+          var g = parseInt($("guests").value, 10) || 0;
+          var cap = sum.zoneCapacity || 0;
+          if (cap > 0 && g > cap) {
+            capacityWarn.textContent =
+              (sum.zoneName || "This zone") +
+              " seats up to " +
+              cap +
+              " guests. Pick a smaller party or another zone.";
+            capacityWarn.classList.remove("hidden");
+            submitBtnRef.disabled = true;
+            return false;
+          }
+          capacityWarn.classList.add("hidden");
+          capacityWarn.textContent = "";
+          submitBtnRef.disabled = false;
+          return true;
+        }
+
         $("guests").addEventListener("change", function (e) {
           updateSummary({ guests: e.target.value });
+          checkCapacity();
         });
         $("name").addEventListener("input", function (e) {
           updateSummary({ name: e.target.value.trim() });
@@ -1225,10 +1296,30 @@
             if (firstSlot) firstSlot.focus();
             return false;
           }
+          if (BOOKED_SLOTS.indexOf(timeValue.value) !== -1) {
+            toast(
+              "That time slot is already booked. Please choose another.",
+              "error"
+            );
+            timeValue.value = "";
+            renderSlots();
+            updateSummary({ time: "" });
+            return false;
+          }
           if (!zoneValue.value) {
             toast("Please choose a reservation zone.", "error");
             var firstZone = zonesEl.querySelector(".zone");
             if (firstZone) firstZone.focus();
+            return false;
+          }
+          // email: full address with TLD; native pattern catches it too
+          var emailEl = $("email");
+          var emailVal = (emailEl.value || "").trim();
+          if (!EMAIL_RE.test(emailVal)) {
+            emailEl.setCustomValidity("Enter a complete email like you@example.com");
+            form.reportValidity();
+            emailEl.setCustomValidity("");
+            emailEl.focus();
             return false;
           }
           if (!form.checkValidity()) {
@@ -1238,6 +1329,20 @@
           var guests = parseInt($("guests").value, 10);
           if (!guests || guests < 1) {
             toast("Number of guests must be at least 1.", "error");
+            return false;
+          }
+          var z = ZONES.find(function (x) {
+            return x.id === zoneValue.value;
+          });
+          if (z && guests > z.capacity) {
+            toast(
+              z.name +
+                " seats up to " +
+                z.capacity +
+                " guests. Pick a smaller party or another zone.",
+              "error"
+            );
+            $("guests").focus();
             return false;
           }
           return true;
@@ -1253,13 +1358,6 @@
             return z.id === zoneId;
           });
           var zoneName = zone ? zone.name : zoneId;
-
-          // Demo logic: 19:30 is unavailable
-          if (time === "19:30") {
-            setStatus("unavailable");
-            toast(STATUS_COPY.unavailable.text, "error");
-            return;
-          }
 
           submitBtn.disabled = true;
           setStatus("pending");
@@ -1288,9 +1386,7 @@
         });
 
         $("book-again-btn").addEventListener("click", function () {
-          // reset form to a clean state
           form.reset();
-          // re-init defaults
           dateInput.value = todayISO();
           timeValue.value = "";
           zoneValue.value = "";
@@ -1302,8 +1398,10 @@
             time: "",
             guests: $("guests").value,
             zoneName: "",
+            zoneCapacity: 0,
             name: ""
           });
+          checkCapacity();
           setStatus("idle");
           successBlock.classList.add("hidden");
           formBlock.classList.remove("hidden");
