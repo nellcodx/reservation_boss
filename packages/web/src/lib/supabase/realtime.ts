@@ -13,6 +13,8 @@
 
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient } from "./client";
+import { demoSubscribeToReservations } from "./demo-client";
+import { isDemoModeEnabled } from "./env";
 import type { Reservation, RestaurantTableRow } from "./types";
 
 type Disposer = () => void;
@@ -21,6 +23,9 @@ export function subscribeToReservations(
   restaurantId: string,
   onChange: (next: { type: "INSERT" | "UPDATE" | "DELETE"; row: Reservation }) => void
 ): Disposer {
+  if (isDemoModeEnabled()) {
+    return demoSubscribeToReservations(restaurantId, onChange);
+  }
   const client = getSupabaseBrowserClient();
   if (!client) return () => {};
 
@@ -57,6 +62,14 @@ export function subscribeToTableStatus(
     row: RestaurantTableRow;
   }) => void
 ): Disposer {
+  if (isDemoModeEnabled()) {
+    // Demo store doesn't mutate `tables` directly — table status is derived
+    // from reservations. Nothing to subscribe to here; return a no-op so
+    // callers don't have to special-case the demo path.
+    void restaurantId;
+    void onChange;
+    return () => {};
+  }
   const client = getSupabaseBrowserClient();
   if (!client) return () => {};
 

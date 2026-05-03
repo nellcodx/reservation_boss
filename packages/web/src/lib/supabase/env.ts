@@ -31,3 +31,19 @@ export function getPublicSupabaseEnv(): PublicSupabaseEnv | null {
 export function isSupabaseConfigured(): boolean {
   return getPublicSupabaseEnv() !== null;
 }
+
+/**
+ * Demo mode runs the booking flow against an in-memory + localStorage store
+ * that mirrors the SQL contracts. Useful for previewing the system without
+ * spinning up a real Supabase project.
+ *
+ *   * Auto-on when Supabase isn't configured (zero-setup demo).
+ *   * Force on with NEXT_PUBLIC_DEMO_MODE=on (use even with Supabase env set).
+ *   * Force off with NEXT_PUBLIC_DEMO_MODE=off (always require real backend).
+ */
+export function isDemoModeEnabled(): boolean {
+  const flag = (process.env.NEXT_PUBLIC_DEMO_MODE ?? "").trim().toLowerCase();
+  if (flag === "on" || flag === "true" || flag === "1") return true;
+  if (flag === "off" || flag === "false" || flag === "0") return false;
+  return !isSupabaseConfigured();
+}

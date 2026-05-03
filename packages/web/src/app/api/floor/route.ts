@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getPrisma } from "@/server/db";
 import { getFloorState } from "@/server/operations";
-import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { isDemoModeEnabled, isSupabaseConfigured } from "@/lib/supabase/env";
 import { loadFloorViaSupabase } from "@/server/supabase/booking";
+import { demoLoadFloor } from "@/server/supabase/demo-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,6 +21,13 @@ export async function GET(req: Request) {
   try {
     const at = new Date(parsed.data.at);
 
+    if (isDemoModeEnabled()) {
+      const out = demoLoadFloor({
+        at,
+        windowMinutes: parsed.data.windowMinutes
+      });
+      return NextResponse.json(out);
+    }
     if (isSupabaseConfigured()) {
       const out = await loadFloorViaSupabase({
         at,

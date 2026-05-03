@@ -3,11 +3,21 @@
 /**
  * Browser-friendly typed wrappers around our Supabase RPCs and views.
  *
- * Every function gracefully returns `null`/empty when Supabase isn't configured
- * so the existing UI keeps working with its legacy /api/* routes.
+ * Each function transparently routes to one of three back-ends:
+ *   1. Supabase (when env vars are set and demo mode is off)
+ *   2. Demo store (in-memory + localStorage) — auto-on when Supabase missing
+ *   3. No-op fallback (legacy)
  */
 
 import { getSupabaseBrowserClient } from "./client";
+import { isDemoModeEnabled } from "./env";
+import {
+  demoCreateReservation,
+  demoFetchActiveTables,
+  demoFetchActiveZones,
+  demoGetAvailableTables
+} from "./demo-client";
+import { DEMO_RESTAURANT_ID } from "./demo-data";
 import type {
   AvailableTable,
   CreateReservationResult,
@@ -22,6 +32,7 @@ import type {
  * -------------------------------------------------------------------------- */
 
 export async function fetchActiveZones(restaurantId: string): Promise<Zone[]> {
+  if (isDemoModeEnabled()) return demoFetchActiveZones(restaurantId);
   const c = getSupabaseBrowserClient();
   if (!c) return [];
   const { data, error } = await c
@@ -39,6 +50,7 @@ export async function fetchActiveZones(restaurantId: string): Promise<Zone[]> {
 export async function fetchActiveTables(
   restaurantId: string
 ): Promise<RestaurantTableRow[]> {
+  if (isDemoModeEnabled()) return demoFetchActiveTables(restaurantId);
   const c = getSupabaseBrowserClient();
   if (!c) return [];
   const { data, error } = await c
@@ -53,6 +65,17 @@ export async function fetchActiveTables(
 }
 
 export async function fetchRestaurant(slug: string): Promise<Restaurant | null> {
+  if (isDemoModeEnabled()) {
+    return {
+      id: DEMO_RESTAURANT_ID,
+      slug,
+      name: "HoReCa BOSS — Demo",
+      timezone: "Europe/Kyiv",
+      is_active: true,
+      created_at: new Date(0).toISOString(),
+      updated_at: new Date(0).toISOString()
+    };
+  }
   const c = getSupabaseBrowserClient();
   if (!c) return null;
   const { data, error } = await c
@@ -80,6 +103,14 @@ export interface GetAvailabilityArgs {
 export async function getAvailableTables(
   args: GetAvailabilityArgs
 ): Promise<AvailableTable[]> {
+  if (isDemoModeEnabled()) {
+    return demoGetAvailableTables({
+      startsAt: args.startsAt,
+      partySize: args.partySize,
+      durationMinutes: args.durationMinutes,
+      zoneId: args.zoneId ?? null
+    });
+  }
   const c = getSupabaseBrowserClient();
   if (!c) return [];
   const { data, error } = await c.rpc("get_available_tables", {
@@ -114,6 +145,7 @@ export interface CreateReservationArgs {
 export async function createReservation(
   args: CreateReservationArgs
 ): Promise<CreateReservationResult> {
+  if (isDemoModeEnabled()) return demoCreateReservation(args);
   const c = getSupabaseBrowserClient();
   if (!c) {
     return { ok: false, reason: "DB_ERROR", detail: "Supabase not configured" };

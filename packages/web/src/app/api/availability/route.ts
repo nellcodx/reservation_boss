@@ -3,8 +3,9 @@ import { z } from "zod";
 import { addMinutes } from "date-fns";
 import { getPrisma } from "@/server/db";
 import { findAvailableTablesForWindow } from "@/server/reservations/logic";
-import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { isDemoModeEnabled, isSupabaseConfigured } from "@/lib/supabase/env";
 import { loadAvailabilityViaSupabase } from "@/server/supabase/booking";
+import { demoLoadAvailability } from "@/server/supabase/demo-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,6 +24,14 @@ export async function GET(req: Request) {
   try {
     const startAt = new Date(parsed.data.startAt);
 
+    if (isDemoModeEnabled()) {
+      const out = demoLoadAvailability({
+        startAt,
+        durationMinutes: parsed.data.durationMinutes,
+        partySize: parsed.data.partySize
+      });
+      return NextResponse.json(out);
+    }
     if (isSupabaseConfigured()) {
       const out = await loadAvailabilityViaSupabase({
         startAt,

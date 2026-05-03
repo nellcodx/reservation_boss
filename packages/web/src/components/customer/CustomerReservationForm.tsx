@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Send } from "lucide-react";
 import { CustomerLayout } from "@/components/layouts/CustomerLayout";
+import { DemoBadge } from "@/components/customer/DemoBadge";
 import { RESERVATION_ZONES } from "@/components/customer/reservation-constants";
 import {
   createReservation,
@@ -162,7 +163,10 @@ export function CustomerReservationForm() {
   return (
     <CustomerLayout>
       <div className="px-4 pt-4">
-        <h2 className="mb-4 font-heading text-xl font-bold">Reserve a Table</h2>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="font-heading text-xl font-bold">Reserve a Table</h2>
+          <DemoBadge />
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-4 rounded-xl border border-border bg-card p-4">
             <div>

@@ -25,17 +25,41 @@ supabase/
 packages/web/src/lib/supabase/
 ├── client.ts          # browser client (anon)
 ├── server.ts          # server clients (anon + service-role)
-├── env.ts             # NEXT_PUBLIC_* readers + isSupabaseConfigured()
+├── env.ts             # NEXT_PUBLIC_* readers + isDemoModeEnabled()
 ├── api.ts             # typed wrappers around RPC + views
 ├── realtime.ts        # subscribe to reservations / table status
-└── types.ts           # TypeScript types matching the SQL schema
+├── types.ts           # TypeScript types matching the SQL schema
+├── demo-data.ts       # pre-seeded zones / tables / opening hours
+├── demo-engine.ts     # pure functions mirroring SQL RPC business rules
+└── demo-client.ts     # browser-side demo store (localStorage + cross-tab)
 
 packages/web/src/server/supabase/
 ├── admin.ts           # server-side client + restaurant id helpers
-└── booking.ts         # adapters preserving legacy /api/* response shapes
+├── booking.ts         # adapters preserving legacy /api/* response shapes
+└── demo-store.ts      # server-side demo store (globalThis singleton)
 ```
 
 ## Quick start
+
+### Option A — zero setup (demo mode)
+
+```bash
+npm run dev -w @rr/web
+# open http://localhost:3000/reservation
+```
+
+When `NEXT_PUBLIC_SUPABASE_URL` is unset the app auto-runs in **demo mode**:
+
+- Pre-seeded restaurant, 4 zones, 13 tables, opening hours, and a few
+  example reservations.
+- `create_reservation`, `get_available_tables`, `get_day_slots`,
+  `get_floor_overview` are simulated by a pure JS engine that mirrors the
+  SQL business rules (overlap detection, opening hours, party size …).
+- Browser bookings persist to `localStorage` and sync across tabs via the
+  `storage` event; server-side bookings live in a `globalThis` singleton.
+- A subtle "Demo mode" pill appears next to the form heading.
+
+### Option B — real Supabase
 
 1. Apply migrations to your Supabase project (see
    [`supabase/README.md` §1](./supabase/README.md#1-apply-the-schema)).
@@ -48,6 +72,9 @@ packages/web/src/server/supabase/
 
 3. `npm run dev` — the web app auto-detects Supabase and switches the
    `/reservation` form and `/book` calendar to the new backend.
+
+> Force demo mode while Supabase is configured: `NEXT_PUBLIC_DEMO_MODE=on`.
+> Disable demo entirely: `NEXT_PUBLIC_DEMO_MODE=off`.
 
 ## Key behaviours
 
