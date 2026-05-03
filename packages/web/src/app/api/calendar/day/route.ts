@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getPrisma } from "@/server/db";
 import { buildDaySlots } from "@/server/calendar";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { loadDaySlotsViaSupabase } from "@/server/supabase/booking";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,6 +21,15 @@ export async function GET(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   try {
+    if (isSupabaseConfigured()) {
+      const data = await loadDaySlotsViaSupabase({
+        day: new Date(parsed.data.day),
+        slotMinutes: parsed.data.slotMinutes,
+        durationMinutes: parsed.data.durationMinutes,
+        partySize: parsed.data.partySize
+      });
+      return NextResponse.json(data);
+    }
     const data = await buildDaySlots({
       prisma: getPrisma(),
       day: new Date(parsed.data.day),
@@ -32,4 +43,3 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
-

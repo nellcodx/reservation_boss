@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getPrisma } from "@/server/db";
 import { getFloorState } from "@/server/operations";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { loadFloorViaSupabase } from "@/server/supabase/booking";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,7 +19,20 @@ export async function GET(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   try {
     const at = new Date(parsed.data.at);
-    const floor = await getFloorState({ prisma: getPrisma(), at, windowMinutes: parsed.data.windowMinutes });
+
+    if (isSupabaseConfigured()) {
+      const out = await loadFloorViaSupabase({
+        at,
+        windowMinutes: parsed.data.windowMinutes
+      });
+      return NextResponse.json(out);
+    }
+
+    const floor = await getFloorState({
+      prisma: getPrisma(),
+      at,
+      windowMinutes: parsed.data.windowMinutes
+    });
     return NextResponse.json({ at, floor });
   } catch (e) {
     const message = e instanceof Error ? e.message : "UNKNOWN";

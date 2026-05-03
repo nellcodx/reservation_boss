@@ -4,6 +4,8 @@ import { addMinutes } from "date-fns";
 import { getPrisma } from "@/server/db";
 import { createReservationOptimized } from "@/server/reservations/logic";
 import { listReservationsInRange } from "@/server/operations";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { createReservationViaSupabase } from "@/server/supabase/booking";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,9 +20,12 @@ const Body = z.object({
   durationMinutes: z.coerce.number().int().min(15).max(360).default(90),
   partySize: z.number().int().min(1).max(20),
   guestName: z.string().min(1).max(80),
-  guestPhone: z.string().min(5).max(30),
+  // Phone is OPTIONAL — no phone-based flows.
+  guestPhone: z.string().min(0).max(30).optional(),
+  guestEmail: z.string().max(120).optional(),
   notes: z.string().max(500).optional(),
-  preferredTableId: z.string().optional()
+  preferredTableId: z.string().optional(),
+  zoneId: z.string().uuid().optional()
 });
 
 export async function GET(req: Request) {
@@ -45,10 +50,33 @@ export async function POST(req: Request) {
     if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
     const startAt = new Date(parsed.data.startAt);
+
+    if (isSupabaseConfigured()) {
+      const result = await createReservationViaSupabase({
+        startAt,
+        durationMinutes: parsed.data.durationMinutes,
+        partySize: parsed.data.partySize,
+        guestName: parsed.data.guestName,
+        guestPhone: parsed.data.guestPhone,
+        guestEmail: parsed.data.guestEmail,
+        notes: parsed.data.notes,
+        preferredTableId: parsed.data.preferredTableId,
+        zoneId: parsed.data.zoneId
+      });
+      if (!result.ok) {
+        return NextResponse.json(
+          { ok: false, reason: result.reason },
+          { status: result.status }
+        );
+      }
+      return NextResponse.json(result);
+    }
+
+    // Legacy Prisma fallback
     const endAt = addMinutes(startAt, parsed.data.durationMinutes);
+    const prisma = getPrisma();
 
     try {
-      const prisma = getPrisma();
       const result = await createReservationOptimized({
         prisma,
         input: {
@@ -56,7 +84,7 @@ export async function POST(req: Request) {
           endAt,
           partySize: parsed.data.partySize,
           guestName: parsed.data.guestName,
-          guestPhone: parsed.data.guestPhone,
+          guestPhone: parsed.data.guestPhone ?? "",
           notes: parsed.data.notes,
           preferredTableId: parsed.data.preferredTableId,
           source: "online"
@@ -82,4 +110,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }
 }
-

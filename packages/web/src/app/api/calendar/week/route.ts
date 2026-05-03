@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getPrisma } from "@/server/db";
 import { buildWeekCalendars } from "@/server/calendar";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { loadWeekViaSupabase } from "@/server/supabase/booking";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,9 +21,17 @@ export async function GET(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   try {
-    const prisma = getPrisma();
+    if (isSupabaseConfigured()) {
+      const out = await loadWeekViaSupabase({
+        weekStart: new Date(parsed.data.week),
+        slotMinutes: parsed.data.slotMinutes,
+        durationMinutes: parsed.data.durationMinutes,
+        partySize: parsed.data.partySize
+      });
+      return NextResponse.json(out);
+    }
     const out = await buildWeekCalendars({
-      prisma,
+      prisma: getPrisma(),
       weekStart: new Date(parsed.data.week),
       slotMinutes: parsed.data.slotMinutes,
       durationMinutes: parsed.data.durationMinutes,

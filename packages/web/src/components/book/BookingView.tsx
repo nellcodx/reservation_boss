@@ -137,8 +137,8 @@ export function BookingView() {
       setErr("This time is not available. Choose another slot or join the waitlist.");
       return;
     }
-    if (!name.trim() || !phone.trim()) {
-      setErr("Name and phone are required.");
+    if (!name.trim()) {
+      setErr("Name is required.");
       return;
     }
     setSubmitting(true);
@@ -155,7 +155,7 @@ export function BookingView() {
           durationMinutes: DURATION,
           partySize: party,
           guestName: name.trim(),
-          guestPhone: phone.trim(),
+          guestPhone: phone.trim() || undefined,
           notes: notes.trim() || undefined,
           preferredTableId: selectedTable ?? undefined
         })
@@ -426,9 +426,8 @@ export function BookingView() {
                 />
               </div>
               <div>
-                <label className="text-xs text-stone-500">Phone (SMS)</label>
+                <label className="text-xs text-stone-500">Phone (optional)</label>
                 <input
-                  required
                   className="mt-0.5 w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}

@@ -3,6 +3,8 @@ import { z } from "zod";
 import { addMinutes } from "date-fns";
 import { getPrisma } from "@/server/db";
 import { findAvailableTablesForWindow } from "@/server/reservations/logic";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { loadAvailabilityViaSupabase } from "@/server/supabase/booking";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,8 +21,18 @@ export async function GET(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   try {
-    const prisma = getPrisma();
     const startAt = new Date(parsed.data.startAt);
+
+    if (isSupabaseConfigured()) {
+      const out = await loadAvailabilityViaSupabase({
+        startAt,
+        durationMinutes: parsed.data.durationMinutes,
+        partySize: parsed.data.partySize
+      });
+      return NextResponse.json(out);
+    }
+
+    const prisma = getPrisma();
     const endAt = addMinutes(startAt, parsed.data.durationMinutes);
     const tables = await findAvailableTablesForWindow({
       prisma,
@@ -35,4 +47,3 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
-
