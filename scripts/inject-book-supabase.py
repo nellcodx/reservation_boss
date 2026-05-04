@@ -10,6 +10,9 @@ Repository secrets (Settings → Secrets and variables → Actions):
 
 Local runs without env vars leave the __HORECA_BOOT__ placeholder; book.html
 falls back to the built-in static demo.
+
+On GitHub Actions, missing URL/key prints a workflow warning and skips inject
+(so the site still deploys as static demo until secrets are added).
 """
 
 from __future__ import annotations
@@ -42,12 +45,13 @@ def main() -> int:
     on_ci = os.environ.get("GITHUB_ACTIONS") == "true"
     if not url or not key:
         if on_ci:
+            # Do not fail the Pages workflow: deploy static demo until secrets exist.
             print(
-                "inject-book-supabase: on CI, PAGES_SUPABASE_URL and "
-                "PAGES_SUPABASE_ANON_KEY must be set as repository secrets",
-                file=sys.stderr,
+                "::warning::PAGES_SUPABASE_URL and/or PAGES_SUPABASE_ANON_KEY are empty — "
+                "book.html stays in static demo. Add them under Settings → Secrets and variables → Actions.",
+                flush=True,
             )
-            return 1
+            return 0
         print("inject-book-supabase: no URL/key in env; keeping placeholder (static demo)")
         return 0
 

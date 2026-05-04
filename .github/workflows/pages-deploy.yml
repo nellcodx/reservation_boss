@@ -1,11 +1,10 @@
-# Static site from /docs → GitHub Pages (official two-job pattern).
+# Static site from /docs → GitHub Pages (official single-job static pattern).
 #
 # Settings → Pages → Source: GitHub Actions (save once).
-# Then push to main or run workflow manually.
 #
-# For live bookings on book.html, add repository secrets:
-#   PAGES_SUPABASE_URL, PAGES_SUPABASE_ANON_KEY (same as NEXT_PUBLIC_* in the web app)
-#   PAGES_RESTAURANT_ID (optional; defaults to demo seed UUID)
+# Optional repository secrets (Settings → Secrets and variables → Actions):
+#   PAGES_SUPABASE_URL, PAGES_SUPABASE_ANON_KEY — injected into docs/book.html
+#   PAGES_RESTAURANT_ID — optional UUID (defaults to demo seed in inject script)
 
 name: Deploy static site (docs) to Pages
 
@@ -18,7 +17,6 @@ on:
       - ".github/workflows/pages-deploy.yml"
   workflow_dispatch:
 
-# build needs id-token + pages for configure-pages / artifact upload to Pages.
 permissions:
   contents: read
   pages: write
@@ -26,11 +24,14 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v5
 
@@ -43,19 +44,10 @@ jobs:
 
       - uses: actions/configure-pages@v5
 
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: docs
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
