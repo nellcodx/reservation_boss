@@ -377,41 +377,6 @@
         text-decoration: none;
         border-bottom: 1px solid #fcd34d;
       }
-      .github-box {
-        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-        border: 1px solid #fbbf24;
-        border-radius: 18px;
-        padding: 1.1rem 1.2rem;
-        margin: 1.35rem 0 1.5rem;
-        font-size: 0.88rem;
-        color: #44403c;
-        line-height: 1.55;
-        box-shadow: 0 2px 12px rgb(251 191 36 / 0.12);
-      }
-      .github-box h2 {
-        font-size: 0.98rem;
-        margin: 0 0 0.55rem;
-        color: #92400e;
-        font-weight: 650;
-      }
-      .github-box p {
-        margin: 0.45rem 0;
-      }
-      .github-box ol {
-        margin: 0.4rem 0 0.35rem 1.15rem;
-        padding: 0;
-      }
-      .github-box li {
-        margin: 0.25rem 0;
-      }
-      .github-box code {
-        font-size: 0.78rem;
-        background: #fff7ed;
-        padding: 2px 7px;
-        border-radius: 6px;
-        border: 1px solid #fed7aa;
-        word-break: break-all;
-      }
     </style>
   </head>
   <body>
@@ -424,29 +389,6 @@
         </p>
         <a class="btn" href="book.html">Book a table</a>
       </header>
-
-      <section class="github-box" lang="uk" aria-labelledby="gh-pages-title">
-        <h2 id="gh-pages-title">GitHub Pages + Supabase</h2>
-        <p>
-          Ця сторінка — <strong>статичний сайт</strong> із папки <code>docs/</code> у репозиторії. GitHub Pages віддає HTML/CSS без Node, тому
-          <strong>повний Next.js тут не крутиться</strong>, але форма <a class="link" href="book.html">book.html</a> може
-          підключатися до Supabase напряму (anon-ключ + RPC), якщо при деплої підставити змінні через GitHub Actions.
-        </p>
-        <p><strong>Як увімкнути Pages і «живі» бронювання:</strong></p>
-        <ol>
-          <li>GitHub → репозиторій → <strong>Settings</strong> → <strong>Pages</strong> → Source: <strong>GitHub Actions</strong> (зберегти).</li>
-          <li>У <strong>Settings → Secrets and variables → Actions</strong> (або в середовищі <strong>github-pages</strong> → Environment secrets) додати або
-            <code>PAGES_SUPABASE_URL</code> / <code>PAGES_SUPABASE_ANON_KEY</code>, або ті самі значення під іменами
-            <code>NEXT_PUBLIC_SUPABASE_URL</code> / <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> — workflow підхопить будь-який варіант.
-            За бажанням: <code>PAGES_RESTAURANT_ID</code> або <code>NEXT_PUBLIC_DEMO_RESTAURANT_ID</code> (інакше — демо UUID із сиду міграцій).
-          </li>
-          <li>Після push у <code>main</code> (або ручного запуску workflow) Actions підставить конфіг у <code>book.html</code> і задеплоїть <code>docs/</code>.</li>
-        </ol>
-        <p>
-          Локальний повний застосунок: <code>npm install</code> у корені, <code>npm run dev -w @rr/web</code>, змінні в
-          <code>packages/web/.env.local</code> (див. <code>packages/web/.env.example</code>).
-        </p>
-      </section>
 
       <div class="steps" aria-label="Booking steps">
         <div class="step">
@@ -541,8 +483,7 @@
       </details>
 
       <p style="text-align: center; font-size: 0.9rem; color: var(--muted)">
-        <a class="link" href="book.html">Booking form</a> on Pages: static preview locally, or real Supabase bookings when
-        <code>PAGES_SUPABASE_*</code> secrets are set and the Pages deploy workflow runs.
+        Ready to book? Open the <a class="link" href="book.html">reservation form</a>.
       </p>
 
       <footer class="footer">
