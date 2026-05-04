@@ -166,11 +166,53 @@
         color: #b45309;
         font-weight: 600;
       }
+      .hero-tabs {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 0;
+        margin: 0 0 1rem;
+        padding: 4px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px solid rgba(28, 25, 23, 0.1);
+        box-shadow: 0 1px 3px rgb(0 0 0 / 0.05);
+      }
+      .hero-tab {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        border-radius: 9px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: #57534e;
+        background: transparent;
+        white-space: nowrap;
+      }
+      .hero-tab:hover {
+        color: #0c0a09;
+      }
+      .hero-tab[aria-current="page"],
+      .hero-tab.is-current {
+        background: #fff;
+        color: #1c1917;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.07);
+      }
+      .hero-tab--staff:not([aria-current="page"]):not(.is-current) {
+        color: #9a3412;
+      }
     </style>
   </head>
   <body>
     <div class="page">
       <a class="back" href="index.html">← Home</a>
+      <nav class="hero-tabs" aria-label="Guest booking or staff demo">
+        <a class="hero-tab" href="book.html">Guest booking</a>
+        <a class="hero-tab hero-tab--staff is-current" href="staff-demo.html" aria-current="page"
+          >demo for staff</a
+        >
+      </nav>
       <p class="eyebrow">Static illustration · GitHub Pages</p>
       <h1>Today’s reservations (staff preview)</h1>
       <p class="note">

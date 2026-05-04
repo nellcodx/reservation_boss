@@ -143,6 +143,42 @@
       .btn-secondary:hover {
         color: #9a3412;
       }
+      .hero-tabs {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 0;
+        margin: 0 auto 1.1rem;
+        padding: 4px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px solid rgba(28, 25, 23, 0.1);
+        box-shadow: 0 1px 3px rgb(0 0 0 / 0.05);
+      }
+      .hero-tab {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        border-radius: 9px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--muted);
+        background: transparent;
+        white-space: nowrap;
+      }
+      .hero-tab:hover {
+        color: var(--text);
+      }
+      .hero-tab[aria-current="page"],
+      .hero-tab.is-current {
+        background: #fff;
+        color: #1c1917;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.07);
+      }
+      .hero-tab--staff:not([aria-current="page"]):not(.is-current) {
+        color: #9a3412;
+      }
       .steps {
         display: grid;
         gap: 1rem;
@@ -387,6 +423,10 @@
         <p class="sub">
           Pick a date, how many guests, and a visit time — without technical diagrams as your first step. The expandable note below is only an illustration of how restaurants colour-code busy tables.
         </p>
+        <nav class="hero-tabs" aria-label="Guest booking or staff demo">
+          <a class="hero-tab" href="book.html">Guest booking</a>
+          <a class="hero-tab hero-tab--staff" href="staff-demo.html">demo for staff</a>
+        </nav>
         <a class="btn" href="book.html">Book a table</a>
       </header>
 
@@ -483,16 +523,11 @@
       </details>
 
       <p style="text-align: center; font-size: 0.9rem; color: var(--muted)">
-        Ready to book? Open the <a class="link" href="book.html">reservation form</a>.
-        <br />
-        <span style="font-size: 0.88rem"
-          >Staff layout (static demo):
-          <a class="link" href="staff-demo.html">staff-demo.html</a></span
-        >
+        Ready to book? Use <strong>Guest booking</strong> in the tabs above or the red button.
       </p>
 
       <footer class="footer">
-        <a class="link" href="book.html">book.html (Pages)</a>
+        <a class="link" href="book.html">book.html</a>
         · <a class="link" href="staff-demo.html">staff-demo</a>
         · Source:
         <a class="link" href="https://github.com/nellcodx/reservation_boss">nellcodx/reservation_boss</a>
