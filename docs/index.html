@@ -377,6 +377,41 @@
         text-decoration: none;
         border-bottom: 1px solid #fcd34d;
       }
+      .github-box {
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        border: 1px solid #fbbf24;
+        border-radius: 18px;
+        padding: 1.1rem 1.2rem;
+        margin: 1.35rem 0 1.5rem;
+        font-size: 0.88rem;
+        color: #44403c;
+        line-height: 1.55;
+        box-shadow: 0 2px 12px rgb(251 191 36 / 0.12);
+      }
+      .github-box h2 {
+        font-size: 0.98rem;
+        margin: 0 0 0.55rem;
+        color: #92400e;
+        font-weight: 650;
+      }
+      .github-box p {
+        margin: 0.45rem 0;
+      }
+      .github-box ol {
+        margin: 0.4rem 0 0.35rem 1.15rem;
+        padding: 0;
+      }
+      .github-box li {
+        margin: 0.25rem 0;
+      }
+      .github-box code {
+        font-size: 0.78rem;
+        background: #fff7ed;
+        padding: 2px 7px;
+        border-radius: 6px;
+        border: 1px solid #fed7aa;
+        word-break: break-all;
+      }
     </style>
   </head>
   <body>
@@ -389,6 +424,26 @@
         </p>
         <a class="btn" href="book.html">Book a table</a>
       </header>
+
+      <section class="github-box" lang="uk" aria-labelledby="gh-pages-title">
+        <h2 id="gh-pages-title">Публічний демо лише через GitHub</h2>
+        <p>
+          Ця сторінка — <strong>статичний сайт</strong> із папки <code>docs/</code> у репозиторії. GitHub Pages віддає HTML/CSS без сервера Node, тому
+          <strong>повний Next.js + Supabase тут не крутиться</strong> — це нормальний «перший крок»: публічний огляд і посилання на код.
+        </p>
+        <p><strong>Як увімкнути GitHub Pages для цього репо:</strong></p>
+        <ol>
+          <li>На GitHub: репозиторій → <strong>Settings</strong> → <strong>Pages</strong>.</li>
+          <li>У блоці <strong>Build and deployment</strong> → Source: <strong>Deploy from a branch</strong>.</li>
+          <li>Branch: <code>main</code>, папка: <strong>/docs</strong> → Save.</li>
+          <li>Через хвилину-дві сайт з’явиться за адресою виду <code>https://&lt;username&gt;.github.io/&lt;repo-name&gt;/</code> (точний URL покаже сам GitHub на сторінці Pages).</li>
+        </ol>
+        <p>
+          Статична форма-приклад: <a class="link" href="book.html">book.html</a> (дані нікуди не відправляються). Реальні бронювання та слоти —
+          після клонування репозиторію: <code>npm install</code> у корені, потім <code>npm run dev -w @rr/web</code> і змінні в
+          <code>packages/web/.env.local</code> (див. <code>packages/web/.env.example</code>).
+        </p>
+      </section>
 
       <div class="steps" aria-label="Booking steps">
         <div class="step">
@@ -487,10 +542,10 @@
       </p>
 
       <footer class="footer">
-        <a class="link" href="https://nellcodx.github.io/reservation/book.html">Static form (Pages)</a>
-        · Next app:
+        <a class="link" href="book.html">Static form (Pages)</a>
+        · Source:
         <a class="link" href="https://github.com/nellcodx/reservation_boss">nellcodx/reservation_boss</a>
-        (деплой → <code>/reservation</code>)
+        · Full app: <code>npm run dev -w @rr/web</code> → <code>/reservation</code>, <code>/book</code>
       </footer>
     </div>
   </body>
