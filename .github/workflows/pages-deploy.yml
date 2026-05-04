@@ -9,11 +9,6 @@
 
 name: Deploy static site (docs) to Pages
 
-# Run composite Actions (checkout, configure-pages, …) on Node 24+ to avoid
-# Node 20 deprecation warnings on the runner.
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 on:
   push:
     branches: [main]
@@ -37,7 +32,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Inject Supabase boot config into book.html
         env:
@@ -48,7 +43,7 @@ jobs:
 
       - uses: actions/configure-pages@v5
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: docs
 
