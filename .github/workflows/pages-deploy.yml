@@ -2,9 +2,12 @@
 #
 # Settings → Pages → Source: GitHub Actions (save once).
 #
-# Optional repository secrets (Settings → Secrets and variables → Actions):
-#   PAGES_SUPABASE_URL, PAGES_SUPABASE_ANON_KEY — injected into docs/book.html
-#   PAGES_RESTAURANT_ID — optional UUID (defaults to demo seed in inject script)
+# Supabase inject (optional): repository OR `github-pages` environment secrets.
+#   PAGES_SUPABASE_*  or the same NEXT_PUBLIC_* names as packages/web/.env.local
+#
+# Node: keep until all composite Actions ship native Node 24 runners.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 name: Deploy static site (docs) to Pages
 
@@ -38,13 +41,16 @@ jobs:
       - name: Inject Supabase boot config into book.html
         env:
           PAGES_SUPABASE_URL: ${{ secrets.PAGES_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           PAGES_SUPABASE_ANON_KEY: ${{ secrets.PAGES_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           PAGES_RESTAURANT_ID: ${{ secrets.PAGES_RESTAURANT_ID }}
+          NEXT_PUBLIC_DEMO_RESTAURANT_ID: ${{ secrets.NEXT_PUBLIC_DEMO_RESTAURANT_ID }}
         run: python3 scripts/inject-book-supabase.py
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: docs
 

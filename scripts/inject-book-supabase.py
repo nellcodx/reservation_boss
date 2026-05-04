@@ -3,10 +3,12 @@
 At deploy time, embed public Supabase credentials into docs/book.html so the
 static GitHub Pages booking form can call Supabase directly (anon key + RPC).
 
-Repository secrets (Settings → Secrets and variables → Actions):
-  PAGES_SUPABASE_URL       — same value as NEXT_PUBLIC_SUPABASE_URL
-  PAGES_SUPABASE_ANON_KEY  — same value as NEXT_PUBLIC_SUPABASE_ANON_KEY
-  PAGES_RESTAURANT_ID      — optional; defaults to demo seed restaurant UUID
+Repository or environment secrets (GitHub Actions). Either Pages-specific names
+or the same names as the Next.js app:
+
+  PAGES_SUPABASE_URL  or  NEXT_PUBLIC_SUPABASE_URL
+  PAGES_SUPABASE_ANON_KEY  or  NEXT_PUBLIC_SUPABASE_ANON_KEY
+  PAGES_RESTAURANT_ID  or  NEXT_PUBLIC_DEMO_RESTAURANT_ID (optional; else demo UUID)
 
 Local runs without env vars leave the __HORECA_BOOT__ placeholder; book.html
 falls back to the built-in static demo.
@@ -38,17 +40,29 @@ def main() -> int:
         print("inject-book-supabase: marker not found in book.html", file=sys.stderr)
         return 1
 
-    url = os.environ.get("PAGES_SUPABASE_URL", "").strip()
-    key = os.environ.get("PAGES_SUPABASE_ANON_KEY", "").strip()
-    rid = os.environ.get("PAGES_RESTAURANT_ID", "").strip() or DEFAULT_RESTAURANT
+    url = (
+        os.environ.get("PAGES_SUPABASE_URL", "").strip()
+        or os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "").strip()
+    )
+    key = (
+        os.environ.get("PAGES_SUPABASE_ANON_KEY", "").strip()
+        or os.environ.get("NEXT_PUBLIC_SUPABASE_ANON_KEY", "").strip()
+    )
+    rid = (
+        os.environ.get("PAGES_RESTAURANT_ID", "").strip()
+        or os.environ.get("NEXT_PUBLIC_DEMO_RESTAURANT_ID", "").strip()
+        or DEFAULT_RESTAURANT
+    )
 
     on_ci = os.environ.get("GITHUB_ACTIONS") == "true"
     if not url or not key:
         if on_ci:
             # Do not fail the Pages workflow: deploy static demo until secrets exist.
             print(
-                "::warning::PAGES_SUPABASE_URL and/or PAGES_SUPABASE_ANON_KEY are empty — "
-                "book.html stays in static demo. Add them under Settings → Secrets and variables → Actions.",
+                "::warning::Supabase URL/anon key are empty — book.html stays static. "
+                "Add repository or `github-pages` environment secrets: "
+                "PAGES_SUPABASE_URL + PAGES_SUPABASE_ANON_KEY, "
+                "or NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY.",
                 flush=True,
             )
             return 0

@@ -435,10 +435,10 @@
         <p><strong>Як увімкнути Pages і «живі» бронювання:</strong></p>
         <ol>
           <li>GitHub → репозиторій → <strong>Settings</strong> → <strong>Pages</strong> → Source: <strong>GitHub Actions</strong> (зберегти).</li>
-          <li>У <strong>Settings → Secrets and variables → Actions</strong> додати секрети:
-            <code>PAGES_SUPABASE_URL</code> та <code>PAGES_SUPABASE_ANON_KEY</code> (ті самі значення, що й
-            <code>NEXT_PUBLIC_SUPABASE_URL</code> / <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> у веб-застосунку).
-            За бажанням: <code>PAGES_RESTAURANT_ID</code> (UUID ресторану; інакше використовується демо-ресторан із сиду міграцій).
+          <li>У <strong>Settings → Secrets and variables → Actions</strong> (або в середовищі <strong>github-pages</strong> → Environment secrets) додати або
+            <code>PAGES_SUPABASE_URL</code> / <code>PAGES_SUPABASE_ANON_KEY</code>, або ті самі значення під іменами
+            <code>NEXT_PUBLIC_SUPABASE_URL</code> / <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> — workflow підхопить будь-який варіант.
+            За бажанням: <code>PAGES_RESTAURANT_ID</code> або <code>NEXT_PUBLIC_DEMO_RESTAURANT_ID</code> (інакше — демо UUID із сиду міграцій).
           </li>
           <li>Після push у <code>main</code> (або ручного запуску workflow) Actions підставить конфіг у <code>book.html</code> і задеплоїть <code>docs/</code>.</li>
         </ol>
