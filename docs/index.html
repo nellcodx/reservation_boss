@@ -426,21 +426,24 @@
       </header>
 
       <section class="github-box" lang="uk" aria-labelledby="gh-pages-title">
-        <h2 id="gh-pages-title">Публічний демо лише через GitHub</h2>
+        <h2 id="gh-pages-title">GitHub Pages + Supabase</h2>
         <p>
-          Ця сторінка — <strong>статичний сайт</strong> із папки <code>docs/</code> у репозиторії. GitHub Pages віддає HTML/CSS без сервера Node, тому
-          <strong>повний Next.js + Supabase тут не крутиться</strong> — це нормальний «перший крок»: публічний огляд і посилання на код.
+          Ця сторінка — <strong>статичний сайт</strong> із папки <code>docs/</code> у репозиторії. GitHub Pages віддає HTML/CSS без Node, тому
+          <strong>повний Next.js тут не крутиться</strong>, але форма <a class="link" href="book.html">book.html</a> може
+          підключатися до Supabase напряму (anon-ключ + RPC), якщо при деплої підставити змінні через GitHub Actions.
         </p>
-        <p><strong>Як увімкнути GitHub Pages для цього репо:</strong></p>
+        <p><strong>Як увімкнути Pages і «живі» бронювання:</strong></p>
         <ol>
-          <li>На GitHub: репозиторій → <strong>Settings</strong> → <strong>Pages</strong>.</li>
-          <li>У блоці <strong>Build and deployment</strong> → Source: <strong>Deploy from a branch</strong>.</li>
-          <li>Branch: <code>main</code>, папка: <strong>/docs</strong> → Save.</li>
-          <li>Через хвилину-дві сайт з’явиться за адресою виду <code>https://&lt;username&gt;.github.io/&lt;repo-name&gt;/</code> (точний URL покаже сам GitHub на сторінці Pages).</li>
+          <li>GitHub → репозиторій → <strong>Settings</strong> → <strong>Pages</strong> → Source: <strong>GitHub Actions</strong> (зберегти).</li>
+          <li>У <strong>Settings → Secrets and variables → Actions</strong> додати секрети:
+            <code>PAGES_SUPABASE_URL</code> та <code>PAGES_SUPABASE_ANON_KEY</code> (ті самі значення, що й
+            <code>NEXT_PUBLIC_SUPABASE_URL</code> / <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code> у веб-застосунку).
+            За бажанням: <code>PAGES_RESTAURANT_ID</code> (UUID ресторану; інакше використовується демо-ресторан із сиду міграцій).
+          </li>
+          <li>Після push у <code>main</code> (або ручного запуску workflow) Actions підставить конфіг у <code>book.html</code> і задеплоїть <code>docs/</code>.</li>
         </ol>
         <p>
-          Статична форма-приклад: <a class="link" href="book.html">book.html</a> (дані нікуди не відправляються). Реальні бронювання та слоти —
-          після клонування репозиторію: <code>npm install</code> у корені, потім <code>npm run dev -w @rr/web</code> і змінні в
+          Локальний повний застосунок: <code>npm install</code> у корені, <code>npm run dev -w @rr/web</code>, змінні в
           <code>packages/web/.env.local</code> (див. <code>packages/web/.env.example</code>).
         </p>
       </section>
@@ -538,11 +541,12 @@
       </details>
 
       <p style="text-align: center; font-size: 0.9rem; color: var(--muted)">
-        Static demo on GitHub Pages — <a class="link" href="book.html">booking form</a> does not send data to a server. Live slots and table picking ship with the hosted Next.js app.
+        <a class="link" href="book.html">Booking form</a> on Pages: static preview locally, or real Supabase bookings when
+        <code>PAGES_SUPABASE_*</code> secrets are set and the Pages deploy workflow runs.
       </p>
 
       <footer class="footer">
-        <a class="link" href="book.html">Static form (Pages)</a>
+        <a class="link" href="book.html">book.html (Pages)</a>
         · Source:
         <a class="link" href="https://github.com/nellcodx/reservation_boss">nellcodx/reservation_boss</a>
         · Full app: <code>npm run dev -w @rr/web</code> → <code>/reservation</code>, <code>/book</code>

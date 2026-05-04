@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#fff5f5" />
     <meta
       name="description"
-      content="Book a table: name, email, date, real-time slots, zone, party size. Static demo, no backend."
+      content="Book a table: name, email, date, slots, zone, party size. On GitHub Pages with CI secrets, bookings go to Supabase; otherwise this file is a static preview."
     />
 
     <link
@@ -654,6 +654,8 @@
         border: 0;
       }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.js"></script>
+    <script type="application/json" id="horeca-boot">__HORECA_BOOT__</script>
   </head>
   <body>
     <div id="toast-region" aria-live="polite" aria-atomic="true"></div>
@@ -664,7 +666,7 @@
       <h1>Book a table</h1>
       <p class="lede">
         Pick a date, an available time, and a zone — the summary on the right updates as you go.
-        This is a static demo, so nothing is sent online.
+        Without Supabase credentials injected at deploy time, this page stays a static preview (nothing is saved).
       </p>
 
       <div class="grid">
@@ -787,7 +789,7 @@
             ></p>
             <button type="submit" class="btn" id="submit-btn">Reserve</button>
             <p class="disclaimer">
-              Static preview — connect a backend for saved bookings, SMS, and email confirmations.
+              Static preview — add Supabase via GitHub Actions secrets on deploy for real saved bookings.
             </p>
           </form>
         </section>
@@ -902,6 +904,160 @@
             capacity: 4
           }
         ];
+
+        var sb = null;
+        var LIVE = false;
+        var boot = {};
+
+        function readBoot() {
+          try {
+            var el = document.getElementById("horeca-boot");
+            if (!el) return;
+            var raw = el.textContent.trim();
+            if (!raw || raw.indexOf("__HORECA_BOOT__") !== -1) return;
+            boot = JSON.parse(raw);
+          } catch (e) {
+            boot = {};
+          }
+        }
+
+        function initSupabaseClient() {
+          readBoot();
+          if (!boot.url || !boot.anonKey || !boot.restaurantId) return;
+          var root = typeof self !== "undefined" ? self : window;
+          if (!root.supabase || typeof root.supabase.createClient !== "function") return;
+          sb = root.supabase.createClient(boot.url, boot.anonKey);
+          LIVE = true;
+        }
+        initSupabaseClient();
+
+        function applyLiveCopy() {
+          if (!LIVE) return;
+          var lede = document.querySelector(".lede");
+          if (lede) {
+            lede.textContent =
+              "Pick a date, an available time, and a zone — slots and zones load from Supabase, and your booking is stored in the database.";
+          }
+          var disc = document.querySelector("#book-form .disclaimer");
+          if (!disc) disc = document.querySelector(".disclaimer");
+          if (disc) {
+            disc.textContent =
+              "Live mode: reservation is written to Supabase. Email/SMS confirmations depend on your project.";
+          }
+          var th = document.getElementById("time-helper");
+          if (th) {
+            th.textContent =
+              "Times follow the restaurant calendar in the database (today’s past slots stay disabled).";
+          }
+          var metaD = document.querySelector('meta[name="description"]');
+          if (metaD) {
+            metaD.setAttribute(
+              "content",
+              "Book a table with live Supabase slots and saved reservations (GitHub Pages + Actions secrets)."
+            );
+          }
+        }
+        applyLiveCopy();
+
+        function partySizeForRpc() {
+          var g = parseInt($("guests").value, 10) || 2;
+          if (g >= 7) return 8;
+          return g;
+        }
+
+        function formatTimeSummary(val) {
+          if (!val) return "";
+          if (String(val).indexOf("T") !== -1) {
+            try {
+              var d = new Date(val);
+              if (!isNaN(d.getTime())) {
+                return d.toLocaleTimeString(undefined, {
+                  hour: "2-digit",
+                  minute: "2-digit"
+                });
+              }
+            } catch (e2) {}
+          }
+          return val;
+        }
+
+        function friendlyReserveError(reason) {
+          switch (reason) {
+            case "GUEST_NAME_REQUIRED":
+              return "Please enter your name.";
+            case "PARTY_SIZE_INVALID":
+            case "PARTY_SIZE_OUT_OF_RANGE":
+              return "Party size is out of range for this restaurant.";
+            case "STARTS_AT_REQUIRED":
+              return "Please pick a date and time.";
+            case "TOO_EARLY":
+              return "This time is too soon — please pick a later slot.";
+            case "OUTSIDE_BOOKING_WINDOW":
+              return "We don't take reservations that far in advance.";
+            case "OUTSIDE_OPENING_HOURS":
+              return "The restaurant isn't open at that time.";
+            case "TABLE_UNAVAILABLE":
+              return "That table just became unavailable. Try another option.";
+            case "FULLY_BOOKED":
+              return "Sorry — we're fully booked at that time.";
+            case "CONFLICT":
+              return "Just missed it — that table was booked a moment ago. Try again.";
+            case "RESTAURANT_NOT_FOUND":
+              return "Restaurant not found.";
+            case "DURATION_OUT_OF_RANGE":
+              return "Reservation duration is invalid.";
+            default:
+              return "Could not create reservation. Please try again.";
+          }
+        }
+
+        function loadZonesFromSupabase() {
+          zonesEl.innerHTML = '<p class="helper">Loading zones…</p>';
+          var rid = boot.restaurantId;
+          var zq = sb
+            .from("v_public_zones")
+            .select("id,slug,name,description,display_order")
+            .eq("restaurant_id", rid)
+            .order("display_order", { ascending: true });
+          var tq = sb.from("v_public_tables").select("zone_id,seats").eq("restaurant_id", rid);
+          return Promise.all([zq, tq]).then(function (results) {
+            var zr = results[0];
+            var tr = results[1];
+            if (zr.error) throw new Error(zr.error.message);
+            if (tr.error) throw new Error(tr.error.message);
+            var cap = {};
+            var trows = tr.data || [];
+            for (var ci = 0; ci < trows.length; ci++) {
+              var trow = trows[ci];
+              var seats = trow.seats || 0;
+              var zid = trow.zone_id;
+              if (!cap[zid] || seats > cap[zid]) cap[zid] = seats;
+            }
+            var zones = zr.data || [];
+            ZONES = zones.map(function (z) {
+              return {
+                id: z.id,
+                slug: z.slug,
+                name: z.name,
+                desc: z.description || "",
+                capacity: cap[z.id] || 0
+              };
+            });
+            if (!ZONES.length) {
+              zonesEl.innerHTML =
+                '<p class="helper">No zones configured for this restaurant.</p>';
+              return;
+            }
+            renderZones();
+            zoneValue.value = "";
+            var zb = zonesEl.querySelectorAll(".zone");
+            for (var j = 0; j < zb.length; j++) {
+              zb[j].setAttribute("aria-checked", "false");
+            }
+            updateSummary({ zoneName: "", zoneCapacity: 0 });
+          });
+        }
+
         var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/;
         var STATUS_COPY = {
           idle: {
@@ -995,7 +1151,6 @@
           }
           zonesEl.innerHTML = html;
         }
-        renderZones();
 
         zonesEl.addEventListener("click", function (e) {
           var btn = e.target.closest(".zone");
@@ -1043,7 +1198,98 @@
         var noSlotsEl = $("no-slots");
         var timeValue = $("time-value");
 
+        function renderSlotsFromSupabase() {
+          var rid = boot.restaurantId;
+          var day = dateInput.value || today;
+          var party = partySizeForRpc();
+          var prevSelected = timeValue.value;
+          slotsEl.innerHTML = '<p class="helper">Loading times…</p>';
+          noSlotsEl.classList.add("hidden");
+          slotsEl.style.display = "";
+          return sb
+            .rpc("get_day_slots", {
+              p_restaurant_id: rid,
+              p_day_local: day,
+              p_slot_minutes: 15,
+              p_duration_min: 90,
+              p_party_size: party
+            })
+            .then(function (res) {
+              if (res.error) {
+                slotsEl.innerHTML = "";
+                toast(res.error.message, "error");
+                return;
+              }
+              var rows = res.data || [];
+              var now = new Date();
+              var isToday = day === todayISO();
+              var html = "";
+              var anyAvail = false;
+              for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+                var ind = row.indicator;
+                var slotStart = new Date(row.starts_at);
+                var iso = slotStart.toISOString();
+                var pastToday = isToday && slotStart <= now;
+                var disabled = ind === "reserved" || pastToday;
+                if (!disabled) anyAvail = true;
+                var checked = !disabled && prevSelected === iso ? "true" : "false";
+                var label = formatTimeSummary(iso);
+                if (ind === "partial") label += " · limited";
+                if (ind === "reserved") label += " · full";
+                if (pastToday) label += " · past";
+                var title = pastToday
+                  ? "This time is in the past"
+                  : ind === "reserved"
+                    ? "Fully booked"
+                    : "Reserve " + label;
+                html +=
+                  '<button type="button" class="slot" role="radio" data-time="' +
+                  iso +
+                  '" aria-checked="' +
+                  checked +
+                  '" title="' +
+                  title.replace(/"/g, "&quot;") +
+                  '" ' +
+                  (disabled ? 'disabled aria-disabled="true" tabindex="-1"' : "") +
+                  ">" +
+                  label +
+                  "</button>";
+              }
+              slotsEl.innerHTML = html;
+
+              if (isToday && !anyAvail) {
+                noSlotsEl.classList.remove("hidden");
+                slotsEl.style.display = "none";
+              } else {
+                noSlotsEl.classList.add("hidden");
+                slotsEl.style.display = "";
+              }
+
+              if (prevSelected) {
+                var btns = slotsEl.querySelectorAll(".slot");
+                var stillValid = null;
+                for (var k = 0; k < btns.length; k++) {
+                  if (btns[k].getAttribute("data-time") === prevSelected && !btns[k].disabled) {
+                    stillValid = btns[k];
+                    break;
+                  }
+                }
+                if (!stillValid) {
+                  timeValue.value = "";
+                  updateSummary({ time: "" });
+                }
+              }
+            });
+        }
+
         function renderSlots() {
+          if (LIVE && sb) {
+            renderSlotsFromSupabase().catch(function (err) {
+              toast(err.message || String(err), "error");
+            });
+            return;
+          }
           var selectedDate = dateInput.value || today;
           var isToday = selectedDate === todayISO();
           var now = new Date();
@@ -1180,7 +1426,7 @@
           }
 
           if (sum.time) {
-            timeEl.textContent = sum.time;
+            timeEl.textContent = formatTimeSummary(sum.time);
             timeEl.removeAttribute("data-empty");
           } else {
             timeEl.textContent = "Not selected yet";
@@ -1247,6 +1493,7 @@
         $("guests").addEventListener("change", function (e) {
           updateSummary({ guests: e.target.value });
           checkCapacity();
+          if (LIVE && sb) renderSlots();
         });
         $("name").addEventListener("input", function (e) {
           updateSummary({ name: e.target.value.trim() });
@@ -1287,6 +1534,68 @@
         var formBlock = $("form-block");
         var successBlock = $("success-block");
 
+        function submitLiveReservation() {
+          var zone = ZONES.find(function (z) {
+            return z.id === zoneValue.value;
+          });
+          var zoneUuid = zone ? zone.id : zoneValue.value;
+          var zoneName = zone ? zone.name : zoneUuid;
+          var startsAt = timeValue.value;
+
+          submitBtn.disabled = true;
+          setStatus("pending");
+          toast(STATUS_COPY.pending.text, "pending");
+
+          sb.rpc("create_reservation", {
+            p_restaurant_id: boot.restaurantId,
+            p_starts_at: startsAt,
+            p_party_size: partySizeForRpc(),
+            p_guest_name: ($("name").value || "").trim(),
+            p_guest_phone: null,
+            p_guest_email: ($("email").value || "").trim() || null,
+            p_zone_id: zoneUuid,
+            p_table_id: null,
+            p_notes: ($("comment").value || "").trim() || null,
+            p_duration_min: 90,
+            p_source: "online"
+          })
+            .then(function (res) {
+              submitBtn.disabled = false;
+              if (res.error) {
+                setStatus("unavailable");
+                toast(res.error.message, "error");
+                return;
+              }
+              var data = res.data;
+              if (!data || data.ok !== true) {
+                setStatus("unavailable");
+                toast(friendlyReserveError(data && data.reason), "error");
+                renderSlots();
+                return;
+              }
+              setStatus("confirmed");
+              toast(STATUS_COPY.confirmed.text, "success");
+              var successLine = $("success-line");
+              successLine.textContent =
+                ($("name").value || "Guest") +
+                ", your table in " +
+                zoneName +
+                " on " +
+                formatNiceDate(dateInput.value) +
+                " at " +
+                formatTimeSummary(startsAt) +
+                " is confirmed.";
+              formBlock.classList.add("hidden");
+              successBlock.classList.remove("hidden");
+              successBlock.scrollIntoView({ behavior: "smooth", block: "start" });
+            })
+            .catch(function (err) {
+              submitBtn.disabled = false;
+              setStatus("unavailable");
+              toast(err.message || String(err), "error");
+            });
+        }
+
         function validate() {
           // hidden time / zone need a friendly message because the browser
           // can't focus a `display: none` ancestor's hidden input.
@@ -1296,7 +1605,7 @@
             if (firstSlot) firstSlot.focus();
             return false;
           }
-          if (BOOKED_SLOTS.indexOf(timeValue.value) !== -1) {
+          if (!LIVE && BOOKED_SLOTS.indexOf(timeValue.value) !== -1) {
             toast(
               "That time slot is already booked. Please choose another.",
               "error"
@@ -1351,6 +1660,11 @@
         form.addEventListener("submit", function (e) {
           e.preventDefault();
           if (!validate()) return;
+
+          if (LIVE && sb) {
+            submitLiveReservation();
+            return;
+          }
 
           var time = timeValue.value;
           var zoneId = zoneValue.value;
@@ -1409,9 +1723,28 @@
         });
 
         // ---------- init ----------
-        renderSlots();
-        updateSummary();
-        setStatus("idle");
+        if (LIVE && sb) {
+          loadZonesFromSupabase()
+            .then(function () {
+              return renderSlotsFromSupabase();
+            })
+            .catch(function (err) {
+              toast(err.message || String(err), "error");
+              LIVE = false;
+              sb = null;
+              renderZones();
+              renderSlots();
+            })
+            .finally(function () {
+              updateSummary();
+              setStatus("idle");
+            });
+        } else {
+          renderZones();
+          renderSlots();
+          updateSummary();
+          setStatus("idle");
+        }
       })();
     </script>
   </body>

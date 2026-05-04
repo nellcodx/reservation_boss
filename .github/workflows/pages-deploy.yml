@@ -2,6 +2,10 @@
 #
 # Settings → Pages → Source: GitHub Actions (save once).
 # Then push to main or run workflow manually.
+#
+# For live bookings on book.html, add repository secrets:
+#   PAGES_SUPABASE_URL, PAGES_SUPABASE_ANON_KEY (same as NEXT_PUBLIC_* in the web app)
+#   PAGES_RESTAURANT_ID (optional; defaults to demo seed UUID)
 
 name: Deploy static site (docs) to Pages
 
@@ -10,6 +14,7 @@ on:
     branches: [main]
     paths:
       - "docs/**"
+      - "scripts/inject-book-supabase.py"
       - ".github/workflows/pages-deploy.yml"
   workflow_dispatch:
 
@@ -25,6 +30,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Inject Supabase boot config into book.html
+        env:
+          PAGES_SUPABASE_URL: ${{ secrets.PAGES_SUPABASE_URL }}
+          PAGES_SUPABASE_ANON_KEY: ${{ secrets.PAGES_SUPABASE_ANON_KEY }}
+          PAGES_RESTAURANT_ID: ${{ secrets.PAGES_RESTAURANT_ID }}
+        run: python3 scripts/inject-book-supabase.py
 
       - uses: actions/configure-pages@v5
 
