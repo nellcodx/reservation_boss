@@ -1,11 +1,7 @@
-# Publishes the static site in /docs to GitHub Pages.
+# Static site from /docs → GitHub Pages (official two-job pattern).
 #
-# After the first push of this file:
-# 1. Repo → Settings → Pages → Build and deployment → Source: GitHub Actions
-#    (if the UI only offers Actions + workflows, pick this instead of “branch”.)
-# 2. Push to `main` (or run “Deploy static site” manually in the Actions tab).
-#
-# If you still use “Deploy from a branch” + /docs, you do not need this workflow.
+# Settings → Pages → Source: GitHub Actions (save once).
+# Then push to main or run workflow manually.
 
 name: Deploy static site (docs) to Pages
 
@@ -19,19 +15,14 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -41,5 +32,15 @@ jobs:
         with:
           path: docs
 
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4
