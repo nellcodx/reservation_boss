@@ -9,6 +9,11 @@
 
 name: Deploy static site (docs) to Pages
 
+# Run composite Actions (checkout, configure-pages, …) on Node 24+ to avoid
+# Node 20 deprecation warnings on the runner.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches: [main]
@@ -18,8 +23,11 @@ on:
       - ".github/workflows/pages-deploy.yml"
   workflow_dispatch:
 
+# build needs id-token + pages for configure-pages / artifact upload to Pages.
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages
